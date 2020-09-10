@@ -49,4 +49,6 @@ while 1:
     #   Printing results
     ################################################################################
 
-    #print(result_3d)
+    print(result_3d)
+
+    print(result_3d.shape)

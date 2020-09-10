@@ -21,6 +21,10 @@ def handling_frame(frame):
     return cv2.resize(frame, (128, 128))
 
 
+def jeferson(array, fn=None):
+    return '[' + ','.join((x if fn is None else fn(x)) for x in array) + ']'
+
+
 ################################################################################
 #   Creatig server and socket binding
 ################################################################################
@@ -40,20 +44,45 @@ cap = cv2.VideoCapture(0)
 
 while True:
 
-    print("start")
+    print("Waiting request ...")
 
     #  Wait for next request from client
-    message = socket.recv()
+    message = socket.recv_string()
+
     print("Received request: %s" % message)
 
-    time.sleep(0.1)
+    if not (message == "handtracking"):
+        socket.send(b"error1")
+        continue
 
     ret, frame = cap.read()
 
-    #  Send reply back to client
-    #  In the real world usage, after you finish your work, send your output here
-    socket.send(b"World")
-    if frame is not None:
-        result_3d, _ = model.process(handling_frame(frame))
-        print(result_3d)
-        # TODO send joints
+    if frame is None:
+        socket.send(b"error2")
+        continue
+
+    result_3d, _ = model.process(handling_frame(frame))
+
+    if result_3d is None:
+        socket.send(b"error3")
+        continue
+
+    n_joint, n_coord = result_3d.shape
+
+    if n_joint != 21 or n_coord != 3:
+        socket.send(b"error4")
+        continue
+
+    socket.send(b"ack")
+
+    for joint in result_3d:
+
+        message = socket.recv_string()
+
+        if not (message == "next"):
+            socket.send(b"error5")
+            break
+        socket.send_string("joint;{};{};{}".format(joint[0], joint[1], joint[2]))
+
+    message = socket.recv_string()
+    socket.send(b"end")
