@@ -1,4 +1,4 @@
-# Python VR Devide for Unity 3D
+# Python VR Device for Unity 3D
 
 [HMD](https://github.com/relativty/Relativ)
 
