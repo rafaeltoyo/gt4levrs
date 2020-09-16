@@ -8,11 +8,13 @@ using NetMQ;
 using NetMQ.Sockets;
 using UnityEngine;
 
-namespace VR
+namespace HadnTracking
 {
 
     public class HandTrackingRequester : RunAbleThread
     {
+
+        private const string VR_DEVICE_ADDRESS = "tcp://localhost:5555";
 
         private const string MSG_HANDSHAKE = "handtracking";
 
@@ -43,12 +45,23 @@ namespace VR
 
         private float[] ParseJoint(string message)
         {
-            string[] pieces = message.Split(';');
             float[] points = new float[3];
 
-            points[0] = float.Parse(pieces[1], CultureInfo.InvariantCulture.NumberFormat);
-            points[1] = float.Parse(pieces[2], CultureInfo.InvariantCulture.NumberFormat);
-            points[2] = float.Parse(pieces[3], CultureInfo.InvariantCulture.NumberFormat);
+            try
+            {
+                string[] pieces = message.Split(';');
+
+                points[0] = float.Parse(pieces[1], CultureInfo.InvariantCulture.NumberFormat);
+                points[1] = float.Parse(pieces[2], CultureInfo.InvariantCulture.NumberFormat);
+                points[2] = float.Parse(pieces[3], CultureInfo.InvariantCulture.NumberFormat);
+
+            }
+            catch (Exception)
+            {
+                points[0] = 0;
+                points[1] = 0;
+                points[2] = 0;
+            }
 
             return points;
         }
@@ -59,7 +72,7 @@ namespace VR
 
             using (RequestSocket client = new RequestSocket())
             {
-                client.Connect("tcp://localhost:5555");
+                client.Connect(VR_DEVICE_ADDRESS);
 
                 // Request hand tracking function
                 client.SendFrame(MSG_HANDSHAKE);

@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace VR
+namespace HadnTracking
 {
 
     public class HandTrackingClient : MonoBehaviour
