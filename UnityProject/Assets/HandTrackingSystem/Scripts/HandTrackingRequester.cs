@@ -8,7 +8,7 @@ using NetMQ;
 using NetMQ.Sockets;
 using UnityEngine;
 
-namespace HadnTracking
+namespace HandTracking
 {
 
     public class HandTrackingRequester : RunAbleThread
@@ -23,6 +23,30 @@ namespace HadnTracking
         private const string MSG_NEXT = "next";
 
         private Regex jointMask = new Regex(@"^joint(;[0-9,.\-+e]+){3}");
+
+        private bool _dataReceived;
+
+        private List<Vector3> _joints;
+
+        public HandTrackingRequester(): base()
+        {
+            _dataReceived = false;
+            _joints = new List<Vector3>();
+        }
+
+        public bool DataReceived {
+            get
+            {
+                if (_dataReceived)
+                {
+                    _dataReceived = false;
+                    return true;
+                }
+                return false;
+            }
+        }
+
+        public List<Vector3> Joints { get => _joints; }
 
         private string TryRead(RequestSocket client)
         {
@@ -70,6 +94,8 @@ namespace HadnTracking
         {
             ForceDotNet.Force(); // this line is needed to prevent unity freeze after one use, not sure why yet
 
+            if (_dataReceived) return;
+
             using (RequestSocket client = new RequestSocket())
             {
                 client.Connect(VR_DEVICE_ADDRESS);
@@ -99,6 +125,8 @@ namespace HadnTracking
                             float[] points = ParseJoint(message);
 
                             Debug.Log(string.Format("{0}, {1}, {2}", points[0], points[1], points[2]));
+
+                            _joints.Add(new Vector3(points[0], points[1], points[2]));
                         }
                         else
                         {
@@ -107,10 +135,11 @@ namespace HadnTracking
                     }
                 }
 
-
             }
 
             NetMQConfig.Cleanup(); // this line is needed to prevent unity freeze after one use, not sure why yet
+
+            _dataReceived = true;
         }
     }
 

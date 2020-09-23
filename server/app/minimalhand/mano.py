@@ -23,13 +23,14 @@ import numpy as np
 import math
 import cv2
 
+
 class NetworkOps(object):
     """ Operations that are frequently used within networks. """
     neg_slope_of_relu = 0.01
 
     @classmethod
     def leaky_relu(cls, tensor, name='relu'):
-        out_tensor = tf.maximum(tensor, cls.neg_slope_of_relu*tensor, name=name)
+        out_tensor = tf.maximum(tensor, cls.neg_slope_of_relu * tensor, name=name)
         return out_tensor
 
     @classmethod
@@ -42,12 +43,14 @@ class NetworkOps(object):
 
             # conv
             kernel = tf.get_variable('weights', kernel_shape, tf.float32,
-                                     tf.contrib.layers.xavier_initializer_conv2d(), trainable=trainable, collections=['wd', 'variables', 'filters'])
+                                     tf.contrib.layers.xavier_initializer_conv2d(), trainable=trainable,
+                                     collections=['wd', 'variables', 'filters'])
             tmp_result = tf.nn.conv2d(in_tensor, kernel, strides, padding='SAME')
 
             # bias
             biases = tf.get_variable('biases', [kernel_shape[3]], tf.float32,
-                                     tf.constant_initializer(0.0001), trainable=trainable, collections=['wd', 'variables', 'biases'])
+                                     tf.constant_initializer(0.0001), trainable=trainable,
+                                     collections=['wd', 'variables', 'biases'])
             out_tensor = tf.nn.bias_add(tmp_result, biases, name='out')
 
             return out_tensor
@@ -79,7 +82,8 @@ class NetworkOps(object):
 
             # bias
             biases = tf.get_variable('biases', [kernel_shape[2]], tf.float32,
-                                     tf.constant_initializer(0.0), trainable=trainable, collections=['wd', 'variables', 'biases'])
+                                     tf.constant_initializer(0.0), trainable=trainable,
+                                     collections=['wd', 'variables', 'biases'])
             out_tensor = tf.nn.bias_add(tmp_result, biases)
             return out_tensor
 
@@ -93,7 +97,7 @@ class NetworkOps(object):
     def get_deconv_filter(f_shape, trainable):
         width = f_shape[0]
         height = f_shape[1]
-        f = math.ceil(width/2.0)
+        f = math.ceil(width / 2.0)
         c = (2 * f - 1 - f % 2) / (2.0 * f)
         bilinear = np.zeros([f_shape[0], f_shape[1]])
         for x in range(width):
@@ -118,7 +122,7 @@ class NetworkOps(object):
 
             # weight matrix
             weights = tf.get_variable('weights', weights_shape, tf.float32,
-                                     tf.contrib.layers.xavier_initializer(), trainable=trainable)
+                                      tf.contrib.layers.xavier_initializer(), trainable=trainable)
             weights = tf.check_numerics(weights, 'weights: %s' % layer_name)
 
             # bias
@@ -132,7 +136,7 @@ class NetworkOps(object):
     @classmethod
     def fully_connected_relu(cls, in_tensor, layer_name, out_chan, trainable=True):
         tensor = cls.fully_connected(in_tensor, layer_name, out_chan, trainable)
-        out_tensor = tf.maximum(tensor, cls.neg_slope_of_relu*tensor, name='out')
+        out_tensor = tf.maximum(tensor, cls.neg_slope_of_relu * tensor, name='out')
         return out_tensor
 
     @staticmethod
@@ -180,9 +184,9 @@ def crop_image_from_xy(image, crop_location, crop_size, scale=1.0):
         crop_size = tf.cast(crop_size, tf.float32)
 
         crop_size_scaled = crop_size / scale
-        y1 = crop_location[:, 0] - crop_size_scaled//2
+        y1 = crop_location[:, 0] - crop_size_scaled // 2
         y2 = y1 + crop_size_scaled
-        x1 = crop_location[:, 1] - crop_size_scaled//2
+        x1 = crop_location[:, 1] - crop_size_scaled // 2
         x2 = x1 + crop_size_scaled
         y1 /= s[1]
         y2 /= s[1]
@@ -217,15 +221,15 @@ def find_max_location(scoremap):
 
         x_vec = tf.reshape(X, [-1])
         y_vec = tf.reshape(Y, [-1])
-        
+
         scoremap_vec = tf.reshape(scoremap, [s[0], -1])
-        
+
         best = tf.argmax(scoremap_vec, dimension=1)
-        
+
         max_ind_vec = tf.cast(best, tf.int32)
-        
-        print ("Max ind vec: ", max_ind_vec[0])
-        
+
+        print("Max ind vec: ", max_ind_vec[0])
+
         xy_loc = list()
         for i in range(s[0]):
             x_loc = tf.reshape(x_vec[max_ind_vec[i]], [1])
@@ -238,29 +242,30 @@ def find_max_location(scoremap):
 
 def single_obj_scoremap(scoremap):
     """ Applies my algorithm to figure out the most likely object from a given segmentation scoremap. """
-    print ("Came here!")
+    print("Came here!")
     with tf.variable_scope('single_obj_scoremap'):
         filter_size = 21
         s = scoremap.get_shape().as_list()
         assert len(s) == 4, "Scoremap must be 4D."
 
-        scoremap_softmax = tf.nn.softmax(scoremap)  #B, H, W, C --> normalizes across last dimension
-        scoremap_fg = tf.reduce_max(scoremap_softmax[:, :, :, 1:], 3) # B, H, W
-        detmap_fg = tf.round(scoremap_fg) # B, H, W
-        
+        scoremap_softmax = tf.nn.softmax(scoremap)  # B, H, W, C --> normalizes across last dimension
+        scoremap_fg = tf.reduce_max(scoremap_softmax[:, :, :, 1:], 3)  # B, H, W
+        detmap_fg = tf.round(scoremap_fg)  # B, H, W
+
         # find maximum in the fg scoremap
         max_loc = find_max_location(scoremap_fg)
 
         # use maximum to start "growing" our objectmap
         objectmap_list = list()
-        kernel_dil = tf.ones((filter_size, filter_size, 1)) / float(filter_size*filter_size)
+        kernel_dil = tf.ones((filter_size, filter_size, 1)) / float(filter_size * filter_size)
         for i in range(s[0]):
             # create initial objectmap (put a one at the maximum)
             sparse_ind = tf.reshape(max_loc[i, :], [1, 2])  # reshape that its one point with 2dim)
             objectmap = tf.sparse_to_dense(sparse_ind, [s[1], s[2]], 1.0)
 
             # grow the map by dilation and pixelwise and
-            num_passes = max(s[1], s[2]) // (filter_size//2) # number of passes needes to make sure the map can spread over the whole image
+            num_passes = max(s[1], s[2]) // (
+                        filter_size // 2)  # number of passes needes to make sure the map can spread over the whole image
             for j in range(num_passes):
                 objectmap = tf.reshape(objectmap, [1, s[1], s[2], 1])
                 objectmap_dil = tf.nn.dilation2d(objectmap, kernel_dil, [1, 1, 1, 1], [1, 1, 1, 1], 'SAME')
@@ -311,12 +316,12 @@ def calc_center_bb(binary_class_mask):
             bb = tf.stack([start, end], 1)
             bb_list.append(bb)
 
-            center_x = 0.5*(x_max + x_min)
-            center_y = 0.5*(y_max + y_min)
+            center_x = 0.5 * (x_max + x_min)
+            center_y = 0.5 * (y_max + y_min)
             center = tf.stack([center_x, center_y], 0)
 
             center = tf.cond(tf.reduce_all(tf.is_finite(center)), lambda: center,
-                                  lambda: tf.constant([160.0, 160.0]))
+                             lambda: tf.constant([160.0, 160.0]))
             center.set_shape([2])
             center_list.append(center)
 
@@ -324,7 +329,7 @@ def calc_center_bb(binary_class_mask):
             crop_size_y = y_max - y_min
             crop_size = tf.expand_dims(tf.maximum(crop_size_x, crop_size_y), 0)
             crop_size = tf.cond(tf.reduce_all(tf.is_finite(crop_size)), lambda: crop_size,
-                                  lambda: tf.constant([100.0]))
+                                lambda: tf.constant([100.0]))
             crop_size.set_shape([1])
             crop_size_list.append(crop_size)
 
@@ -412,13 +417,13 @@ def plot_hand(coords_hw, axis, img=None, color_fixed=None, linewidth='1'):
              ((20, 19), colors[17, :]),
              ((19, 18), colors[18, :]),
              ((18, 17), colors[19, :])]
-    
+
     for connection, color in bones:
         coord1 = coords_hw[connection[0], :]
         coord2 = coords_hw[connection[1], :]
         coords = np.stack([coord1, coord2])
-        
-        cv_color = (list(map(int, color*255)))
+
+        cv_color = (list(map(int, color * 255)))
 
         if img is not None:
             cv2.line(img, (int(coords[0][1]), int(coords[0][0])), (int(coords[1][1]), int(coords[1][0])), cv_color, 2)
@@ -495,26 +500,27 @@ class LearningRateScheduler:
     """
         Provides scalar tensors at certain iteration as is needed for a multistep learning rate schedule.
     """
+
     def __init__(self, steps, values):
         self.steps = steps
         self.values = values
 
-        assert len(steps)+1 == len(values), "There must be one more element in value as step."
+        assert len(steps) + 1 == len(values), "There must be one more element in value as step."
 
     def get_lr(self, global_step):
         with tf.name_scope('lr_scheduler'):
 
-            if len(self.values) == 1: #1 value -> no step
+            if len(self.values) == 1:  # 1 value -> no step
                 learning_rate = tf.constant(self.values[0])
-            elif len(self.values) == 2: #2 values -> one step
+            elif len(self.values) == 2:  # 2 values -> one step
                 cond = tf.greater(global_step, self.steps[0])
                 learning_rate = tf.where(cond, self.values[1], self.values[0])
-            else: # n values -> n-1 steps
+            else:  # n values -> n-1 steps
                 cond_first = tf.less(global_step, self.steps[0])
 
                 cond_between = list()
-                for ind, step in enumerate(range(0, len(self.steps)-1)):
-                    cond_between.append(tf.logical_and(tf.less(global_step, self.steps[ind+1]),
+                for ind, step in enumerate(range(0, len(self.steps) - 1)):
+                    cond_between.append(tf.logical_and(tf.less(global_step, self.steps[ind + 1]),
                                                        tf.greater_equal(global_step, self.steps[ind])))
 
                 cond_last = tf.greater_equal(global_step, self.steps[-1])
@@ -536,6 +542,7 @@ class LearningRateScheduler:
 class EvalUtil:
     """ Util class for evaluation networks.
     """
+
     def __init__(self, num_kp=21):
         # init empty data storage
         self.data = list()
@@ -626,43 +633,43 @@ class EvalUtil:
 
 
 def load_weights_from_snapshot(session, checkpoint_path, discard_list=None, rename_dict=None):
-        """ Loads weights from a snapshot except the ones indicated with discard_list. Others are possibly renamed. """
-        reader = pywrap_tensorflow.NewCheckpointReader(checkpoint_path)
-        var_to_shape_map = reader.get_variable_to_shape_map()
+    """ Loads weights from a snapshot except the ones indicated with discard_list. Others are possibly renamed. """
+    reader = pywrap_tensorflow.NewCheckpointReader(checkpoint_path)
+    var_to_shape_map = reader.get_variable_to_shape_map()
 
-        # Remove everything from the discard list
-        if discard_list is not None:
-            num_disc = 0
-            var_to_shape_map_new = dict()
-            for k, v in var_to_shape_map.items():
-                good = True
-                for dis_str in discard_list:
-                    if dis_str in k:
-                        good = False
-
-                if good:
-                    var_to_shape_map_new[k] = v
-                else:
-                    num_disc += 1
-            var_to_shape_map = dict(var_to_shape_map_new)
-            print('Discarded %d items' % num_disc)
-
-        # rename everything according to rename_dict
-        num_rename = 0
+    # Remove everything from the discard list
+    if discard_list is not None:
+        num_disc = 0
         var_to_shape_map_new = dict()
-        for name in var_to_shape_map.keys():
-            new_name = name
-            if rename_dict is not None:
-                for rename_str in rename_dict.keys():
-                    if rename_str in name:
-                        new_name = new_name.replace(rename_str, rename_dict[rename_str])
-                        num_rename += 1
-            var_to_shape_map_new[new_name] = reader.get_tensor(name)
-        var_to_shape_map = dict(var_to_shape_map_new)
+        for k, v in var_to_shape_map.items():
+            good = True
+            for dis_str in discard_list:
+                if dis_str in k:
+                    good = False
 
-        init_op, init_feed = tf.contrib.framework.assign_from_values(var_to_shape_map)
-        session.run(init_op, init_feed)
-        print('Initialized %d variables from %s.' % (len(var_to_shape_map), checkpoint_path))
+            if good:
+                var_to_shape_map_new[k] = v
+            else:
+                num_disc += 1
+        var_to_shape_map = dict(var_to_shape_map_new)
+        print('Discarded %d items' % num_disc)
+
+    # rename everything according to rename_dict
+    num_rename = 0
+    var_to_shape_map_new = dict()
+    for name in var_to_shape_map.keys():
+        new_name = name
+        if rename_dict is not None:
+            for rename_str in rename_dict.keys():
+                if rename_str in name:
+                    new_name = new_name.replace(rename_str, rename_dict[rename_str])
+                    num_rename += 1
+        var_to_shape_map_new[new_name] = reader.get_tensor(name)
+    var_to_shape_map = dict(var_to_shape_map_new)
+
+    init_op, init_feed = tf.contrib.framework.assign_from_values(var_to_shape_map)
+    session.run(init_op, init_feed)
+    print('Initialized %d variables from %s.' % (len(var_to_shape_map), checkpoint_path))
 
 
 def calc_auc(x, y):
@@ -680,10 +687,10 @@ def get_stb_ref_curves():
     """
     curve_list = list()
     thresh_mm = np.array([20.0, 25, 30, 35, 40, 45, 50])
-    pso_b1 = np.array([0.32236842,  0.53947368,  0.67434211,  0.75657895,  0.80921053, 0.86513158,  0.89473684])
+    pso_b1 = np.array([0.32236842, 0.53947368, 0.67434211, 0.75657895, 0.80921053, 0.86513158, 0.89473684])
     curve_list.append((thresh_mm, pso_b1, 'PSO (AUC=%.3f)' % calc_auc(thresh_mm, pso_b1)))
-    icppso_b1 = np.array([ 0.51973684,  0.64473684,  0.71710526,  0.77302632,  0.80921053, 0.84868421,  0.86842105])
+    icppso_b1 = np.array([0.51973684, 0.64473684, 0.71710526, 0.77302632, 0.80921053, 0.84868421, 0.86842105])
     curve_list.append((thresh_mm, icppso_b1, 'ICPPSO (AUC=%.3f)' % calc_auc(thresh_mm, icppso_b1)))
-    chpr_b1 = np.array([ 0.56578947,  0.71710526,  0.82236842,  0.88157895,  0.91447368, 0.9375,  0.96052632])
+    chpr_b1 = np.array([0.56578947, 0.71710526, 0.82236842, 0.88157895, 0.91447368, 0.9375, 0.96052632])
     curve_list.append((thresh_mm, chpr_b1, 'CHPR (AUC=%.3f)' % calc_auc(thresh_mm, chpr_b1)))
     return curve_list

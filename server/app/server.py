@@ -21,10 +21,6 @@ def handling_frame(frame):
     return cv2.resize(frame, (128, 128))
 
 
-def jeferson(array, fn=None):
-    return '[' + ','.join((x if fn is None else fn(x)) for x in array) + ']'
-
-
 ################################################################################
 #   Creatig server and socket binding
 ################################################################################
@@ -61,13 +57,13 @@ while True:
         socket.send(b"error2")
         continue
 
-    result_3d, _ = model.process(handling_frame(frame))
+    xyz, theta = model.process(handling_frame(frame))
 
-    if result_3d is None:
+    if xyz is None:
         socket.send(b"error3")
         continue
 
-    n_joint, n_coord = result_3d.shape
+    n_joint, n_coord = xyz.shape
 
     if n_joint != 21 or n_coord != 3:
         socket.send(b"error4")
@@ -75,7 +71,7 @@ while True:
 
     socket.send(b"ack")
 
-    for joint in result_3d:
+    for joint in xyz:
 
         message = socket.recv_string()
 

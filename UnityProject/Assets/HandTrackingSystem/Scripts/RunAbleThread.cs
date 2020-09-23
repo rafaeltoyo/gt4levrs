@@ -1,6 +1,7 @@
 ﻿using System.Threading;
+using UnityEngine;
 
-namespace HadnTracking
+namespace HandTracking
 {
     public abstract class RunAbleThread
     {
