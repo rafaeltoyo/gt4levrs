@@ -4,7 +4,7 @@ import zmq
 import cv2
 import numpy as np
 
-from app.minimalhand.wrappers import ModelPipeline
+from minimalhand.wrappers import ModelPipeline
 
 ################################################################################
 
@@ -36,7 +36,7 @@ model = ModelPipeline()
 ################################################################################
 #   Starting WebCam
 ################################################################################
-cap = cv2.VideoCapture(0)
+cap = cv2.VideoCapture(1)
 
 while True:
 

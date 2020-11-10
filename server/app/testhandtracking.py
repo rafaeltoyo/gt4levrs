@@ -1,15 +1,13 @@
 import cv2
 import numpy as np
+import minimalhand.config as config
+from minimalhand.wrappers import ModelPipeline, ModelDet
+from minimalhand.mano import plot_hand
 
-import app.minimalhand.config as config
-from app.minimalhand.wrappers import ModelPipeline, ModelDet
-
-from app.minimalhand.mano import plot_hand
-
-model = ModelDet(config.DETECTION_MODEL_PATH)
+# model = ModelDet(config.DETECTION_MODEL_PATH)
 modelpp = ModelPipeline()
 
-cap = cv2.VideoCapture(0)
+cap = cv2.VideoCapture(1)
 
 while 1:
     ret, frame_large = cap.read()
@@ -33,7 +31,7 @@ while 1:
     #   Ploting results
     ################################################################################
 
-    fixed_heatmap = (heatmap/2 + 1) * 200
+    fixed_heatmap = (result_3d/2 + 1) * 200
     #print(heatmap)
     #print(fixed_heatmap)
 

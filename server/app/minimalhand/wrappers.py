@@ -3,10 +3,10 @@ import os
 import numpy as np
 import tensorflow as tf
 
-from .config import *
-from .kinematics import *
-from .network import *
-from .utils import *
+from minimalhand.config import *
+from minimalhand.kinematics import *
+from minimalhand.network import *
+from minimalhand.utils import *
 
 
 class ModelDet:
@@ -28,22 +28,16 @@ class ModelDet:
                 config.gpu_options.allow_growth = True
                 self.sess = tf.Session(config=config)
                 self.input_ph = tf.placeholder(tf.uint8, [128, 128, 3])
-                self.feed_img = \
-                    tf.cast(tf.expand_dims(self.input_ph, 0), tf.float32) / 255
-                self.hmaps, self.dmaps, self.lmaps = \
-                    detnet(self.feed_img, 1, False)
+                self.feed_img = tf.cast(tf.expand_dims(self.input_ph, 0), tf.float32) / 255
+                self.hmaps, self.dmaps, self.lmaps = detnet(self.feed_img, 1, False)
 
                 self.hmap = self.hmaps[-1]
                 self.dmap = self.dmaps[-1]
                 self.lmap = self.lmaps[-1]
 
                 self.uv = tf_hmap_to_uv(self.hmap)
-                self.delta = tf.gather_nd(
-                    tf.transpose(self.dmap, [0, 3, 1, 2, 4]), self.uv, batch_dims=2
-                )[0]
-                self.xyz = tf.gather_nd(
-                    tf.transpose(self.lmap, [0, 3, 1, 2, 4]), self.uv, batch_dims=2
-                )[0]
+                self.delta = tf.gather_nd(tf.transpose(self.dmap, [0, 3, 1, 2, 4]), self.uv, batch_dims=2)[0]
+                self.xyz = tf.gather_nd(tf.transpose(self.lmap, [0, 3, 1, 2, 4]), self.uv, batch_dims=2)[0]
 
                 self.uv = self.uv[0]
             tf.train.Saver().restore(self.sess, model_path)

@@ -426,7 +426,13 @@ def plot_hand(coords_hw, axis, img=None, color_fixed=None, linewidth='1'):
         cv_color = (list(map(int, color * 255)))
 
         if img is not None:
-            cv2.line(img, (int(coords[0][1]), int(coords[0][0])), (int(coords[1][1]), int(coords[1][0])), cv_color, 2)
+            x1 = int(coords[0][0])
+            y1 = int(coords[0][1])
+            x2 = int(coords[1][0])
+            y2 = int(coords[1][1])
+            point_1 = (x1, y1)
+            point_2 = (x2, y2)
+            cv2.line(img, point_1, point_2, cv_color, 2)
 
         else:
             if color_fixed is None:
@@ -493,7 +499,7 @@ def plot_hand_3d(coords_xyz, axis, color_fixed=None, linewidth='1'):
         else:
             axis.plot(coords[:, 0], coords[:, 1], coords[:, 2], color_fixed, linewidth=linewidth)
 
-    axis.view_init(azim=-90., elev=90.)
+    # axis.view_init(azim=-90., elev=90.)
 
 
 class LearningRateScheduler:
