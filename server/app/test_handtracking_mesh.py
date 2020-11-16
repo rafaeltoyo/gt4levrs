@@ -11,7 +11,6 @@ from minimalhand.mano import plot_hand, plot_hand_3d
 from minimalhand.utils import *
 from minimalhand.utils import OneEuroFilter, imresize
 from minimalhand.wrappers import ModelPipeline
-import matplotlib.pyplot as plt
 
 def live_application(capture):
     """

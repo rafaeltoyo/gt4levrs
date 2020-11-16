@@ -32,8 +32,6 @@ while 1:
     ################################################################################
 
     fixed_heatmap = (result_3d/2 + 1) * 200
-    #print(heatmap)
-    #print(fixed_heatmap)
 
     handimg = np.ones(shape=(300, 300, 3), dtype='uint8') * 255
     plot_hand(fixed_heatmap, None, img=handimg)
