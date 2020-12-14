@@ -30,7 +30,7 @@ class CoordenateConverter:
                 point = (coord_x, coord_y, coord_z)
 
                 if connection != 0:
-                    relative_coordenates[connection] = [point[0], point[1], absolute_coordenates[connection][2]]
+                    relative_coordenates[connection] = [point[0], point[1], point[2]]
 
         return relative_coordenates
 
@@ -53,6 +53,6 @@ class CoordenateConverter:
                 last_finger_coordenates = point
 
                 if connection != 0:
-                    absolute_coordenates[connection] = [point[0], point[1], relative_coordenates[connection][2]]
+                    absolute_coordenates[connection] = [point[0], point[1], point[2]]
 
         return absolute_coordenates
