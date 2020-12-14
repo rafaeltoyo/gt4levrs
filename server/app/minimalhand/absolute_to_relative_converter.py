@@ -25,7 +25,9 @@ class CoordenateConverter:
 
                 coord_x = coord[0] - last_finger_coordenates[0]
                 coord_y = coord[1] - last_finger_coordenates[1]
-                point = (coord_x, coord_y)
+                coord_z = coord[2] - last_finger_coordenates[2]
+
+                point = (coord_x, coord_y, coord_z)
 
                 if connection != 0:
                     relative_coordenates[connection] = [point[0], point[1], absolute_coordenates[connection][2]]
@@ -38,14 +40,15 @@ class CoordenateConverter:
         absolute_coordenates[0] = relative_coordenates[0]
 
         for finger_connections in self.bones:
-            last_finger_coordenates = (0, 0)
+            last_finger_coordenates = (0, 0, 0)
 
             for connection in finger_connections:
                 coord = relative_coordenates[connection]
 
                 coord_x = round(coord[0] + last_finger_coordenates[0], 9)
                 coord_y = round(coord[1] + last_finger_coordenates[1], 9)
-                point = (coord_x, coord_y)
+                coord_z = round(coord[2] + last_finger_coordenates[2], 9)
+                point = (coord_x, coord_y, coord_z)
 
                 last_finger_coordenates = point
 

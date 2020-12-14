@@ -7,7 +7,7 @@ from minimalhand.mano import plot_hand
 # model = ModelDet(config.DETECTION_MODEL_PATH)
 modelpp = ModelPipeline()
 
-cap = cv2.VideoCapture(1)
+cap = cv2.VideoCapture(0)
 
 while 1:
     ret, frame_large = cap.read()
