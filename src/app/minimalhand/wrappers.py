@@ -3,10 +3,10 @@ import os
 import numpy as np
 import tensorflow as tf
 
-from minimalhand.config import *
-from minimalhand.kinematics import *
-from minimalhand.network import *
-from minimalhand.utils import *
+from src.app.minimalhand.config import HAND_MESH_MODEL_PATH, IK_UNIT_LENGTH, DETECTION_MODEL_PATH, IK_MODEL_PATH
+from src.app.minimalhand.kinematics import mano_to_mpii, xyz_to_delta, MPIIHandJoints
+from src.app.minimalhand.network import iknet, detnet, tf_hmap_to_uv
+from src.app.minimalhand.utils import load_pkl
 
 
 class ModelDet:

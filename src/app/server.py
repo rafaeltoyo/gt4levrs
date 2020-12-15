@@ -1,13 +1,7 @@
-import time
 import zmq
-
 import cv2
 import numpy as np
-
-from minimalhand.wrappers import ModelPipeline
-
-################################################################################
-
+from src.app.minimalhand.wrappers import ModelPipeline
 
 def handling_frame(frame):
     if frame.shape[0] > frame.shape[1]:
@@ -22,7 +16,7 @@ def handling_frame(frame):
 
 
 ################################################################################
-#   Creatig server and socket binding
+#   Creatig src and socket binding
 ################################################################################
 context = zmq.Context()
 socket = context.socket(zmq.REP)

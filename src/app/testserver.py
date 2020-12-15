@@ -10,7 +10,7 @@ def jeferson(array, fn=None):
 
 
 ################################################################################
-#   Creatig server and socket binding
+#   Creatig src and socket binding
 ################################################################################
 context = zmq.Context()
 socket = context.socket(zmq.REP)
