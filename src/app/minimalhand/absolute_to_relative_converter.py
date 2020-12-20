@@ -1,58 +1,65 @@
+from copy import deepcopy
+
 class CoordenateConverter:
-    bones = [(0, 4, 3, 2, 1),
+    bones = [(0, 1, 2, 3, 4),
 
-             (0, 8, 7, 6, 5),
+             (0, 5, 6, 7, 8),
 
-             (0, 12, 11, 10, 9),
+             (0, 9, 10, 11, 12),
 
-             (0, 16, 15, 14, 13),
+             (0, 13, 14, 15, 16),
 
-             (0, 20, 19, 18, 17)]
+             (0, 17, 18, 19, 20)]
 
     def convert_to_relative(self, absolute_coordenates):
-        relative_coordenates = [0] * 21
+        relative_coordenates = deepcopy(absolute_coordenates)
 
-        relative_coordenates[0] = absolute_coordenates[0]
+        for hand_index in range(len(relative_coordenates)):
+            for finger_connections in self.bones:
+                for connection in finger_connections[1:]:
+                    coord = absolute_coordenates[hand_index].landmark[connection]
 
-        for finger_connections in self.bones:
-            for connection in finger_connections[1:]:
-                coord = absolute_coordenates[connection]
+                    if connection % 4 == 0:
+                        last_finger_coordenates = absolute_coordenates[hand_index].landmark[0]
+                    else:
+                        last_finger_coordenates = absolute_coordenates[hand_index].landmark[connection - 1]
 
-                if connection % 4 == 0:
-                    last_finger_coordenates = relative_coordenates[0]
-                else:
-                    last_finger_coordenates = absolute_coordenates[connection + 1]
+                    coord_x = coord.x - last_finger_coordenates.x
+                    coord_y = coord.y - last_finger_coordenates.y
+                    coord_z = coord.z - last_finger_coordenates.z
 
-                coord_x = coord[0] - last_finger_coordenates[0]
-                coord_y = coord[1] - last_finger_coordenates[1]
-                coord_z = coord[2] - last_finger_coordenates[2]
-
-                point = (coord_x, coord_y, coord_z)
-
-                if connection != 0:
-                    relative_coordenates[connection] = [point[0], point[1], point[2]]
+                    if connection != 0:
+                        relative_coordenates[hand_index].landmark[connection].x = coord_x
+                        relative_coordenates[hand_index].landmark[connection].y = coord_y
+                        relative_coordenates[hand_index].landmark[connection].z = coord_z
 
         return relative_coordenates
 
     def convert_to_absolute(self, relative_coordenates):
-        absolute_coordenates = [0] * 21
+        absolute_coordenates = deepcopy(relative_coordenates)
 
-        absolute_coordenates[0] = relative_coordenates[0]
+        for hand_index in range(len(relative_coordenates)):
+            for finger_connections in self.bones:
+                last_finger_coordenates = deepcopy(relative_coordenates[hand_index].landmark[0])
+                last_finger_coordenates.x = 0
+                last_finger_coordenates.y = 0
+                last_finger_coordenates.z = 0
 
-        for finger_connections in self.bones:
-            last_finger_coordenates = (0, 0, 0)
+                for connection in finger_connections:
+                    coord = relative_coordenates[hand_index].landmark[connection]
 
-            for connection in finger_connections:
-                coord = relative_coordenates[connection]
+                    print(connection)
+                    coord_x = round(coord.x + last_finger_coordenates.x, 9)
+                    coord_y = round(coord.y + last_finger_coordenates.y, 9)
+                    coord_z = round(coord.z + last_finger_coordenates.z, 9)
 
-                coord_x = round(coord[0] + last_finger_coordenates[0], 9)
-                coord_y = round(coord[1] + last_finger_coordenates[1], 9)
-                coord_z = round(coord[2] + last_finger_coordenates[2], 9)
-                point = (coord_x, coord_y, coord_z)
+                    if connection != 0:
+                        absolute_coordenates[hand_index].landmark[connection].x = coord_x
+                        absolute_coordenates[hand_index].landmark[connection].y = coord_y
+                        absolute_coordenates[hand_index].landmark[connection].z = coord_z
 
-                last_finger_coordenates = point
-
-                if connection != 0:
-                    absolute_coordenates[connection] = [point[0], point[1], point[2]]
+                    last_finger_coordenates.x = coord_x
+                    last_finger_coordenates.y = coord_y
+                    last_finger_coordenates.z = coord_z
 
         return absolute_coordenates

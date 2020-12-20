@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from server.app.minimalhand.absolute_to_relative_converter import CoordenateConverter
+from src.app.minimalhand.absolute_to_relative_converter import CoordenateConverter
 
 
 class TestCoordenateConverter(TestCase):
