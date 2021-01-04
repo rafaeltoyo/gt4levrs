@@ -1,5 +1,6 @@
 from copy import deepcopy
 
+
 class CoordenateConverter:
     bones = [(0, 1, 2, 3, 4),
 
@@ -19,7 +20,7 @@ class CoordenateConverter:
                 for connection in finger_connections[1:]:
                     coord = absolute_coordenates[hand_index].landmark[connection]
 
-                    if connection % 4 == 0:
+                    if (connection - 1) % 4 == 0:
                         last_finger_coordenates = absolute_coordenates[hand_index].landmark[0]
                     else:
                         last_finger_coordenates = absolute_coordenates[hand_index].landmark[connection - 1]
@@ -48,7 +49,6 @@ class CoordenateConverter:
                 for connection in finger_connections:
                     coord = relative_coordenates[hand_index].landmark[connection]
 
-                    print(connection)
                     coord_x = round(coord.x + last_finger_coordenates.x, 9)
                     coord_y = round(coord.y + last_finger_coordenates.y, 9)
                     coord_z = round(coord.z + last_finger_coordenates.z, 9)
