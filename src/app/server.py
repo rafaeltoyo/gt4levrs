@@ -1,7 +1,7 @@
 import zmq
 import cv2
 import numpy as np
-from src.app.minimalhand.wrappers import ModelPipeline
+from app.minimalhand.wrappers import ModelPipeline
 
 def handling_frame(frame):
     if frame.shape[0] > frame.shape[1]:

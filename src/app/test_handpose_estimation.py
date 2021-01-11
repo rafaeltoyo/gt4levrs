@@ -1,8 +1,8 @@
 import cv2
 import numpy as np
-import minimalhand.config as config
-from minimalhand.wrappers import ModelPipeline, ModelDet
-from minimalhand.mano import plot_hand
+import app.minimalhand.config as config
+from app.minimalhand.wrappers import ModelPipeline, ModelDet
+from app.minimalhand.mano import plot_hand
 
 # model = ModelDet(config.DETECTION_MODEL_PATH)
 modelpp = ModelPipeline()

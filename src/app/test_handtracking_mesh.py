@@ -1,16 +1,16 @@
 import cv2
-import minimalhand.config as config
+import app.minimalhand.config as config
 import open3d as o3d
 import pygame
-from minimalhand.capture import OpenCVCapture
-from minimalhand.hand_mesh import HandMesh
-from minimalhand.kinematics import mpii_to_mano
+from app.minimalhand.capture import OpenCVCapture
+from app.minimalhand.hand_mesh import HandMesh
+from app.minimalhand.kinematics import mpii_to_mano
 from transforms3d.axangles import axangle2mat
 import numpy as np
-from minimalhand.mano import plot_hand, plot_hand_3d
-from minimalhand.utils import *
-from minimalhand.utils import OneEuroFilter, imresize
-from minimalhand.wrappers import ModelPipeline
+from app.minimalhand.mano import plot_hand, plot_hand_3d
+from app.minimalhand.utils import *
+from app.minimalhand.utils import OneEuroFilter, imresize
+from app.minimalhand.wrappers import ModelPipeline
 
 def live_application(capture):
     """

@@ -1,5 +1,5 @@
 from unittest import TestCase
-from src.app.minimalhand.absolute_to_relative_converter import CoordenateConverter
+from app.minimalhand.absolute_to_relative_converter import CoordenateConverter
 
 
 # class TestCoordenateConverter(TestCase):
