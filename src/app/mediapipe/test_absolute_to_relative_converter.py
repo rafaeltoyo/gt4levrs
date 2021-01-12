@@ -1,5 +1,5 @@
 from unittest import TestCase
-from app.minimalhand.absolute_to_relative_converter import CoordenateConverter
+from app.utils import CoordenateConverter
 
 
 # class TestCoordenateConverter(TestCase):
@@ -16,7 +16,9 @@ converter = CoordenateConverter()
 hands = mp_hands.Hands(min_detection_confidence=0.5, min_tracking_confidence=0.5)
 cap = cv2.VideoCapture(0)
 while cap.isOpened():
+
     success, image = cap.read()
+
     if not success:
         print("Ignoring empty camera frame.")
         # If loading a video, use 'break' instead of 'continue'.
@@ -25,6 +27,7 @@ while cap.isOpened():
     # Flip the image horizontally for a later selfie-view display, and convert
     # the BGR image to RGB.
     image = cv2.cvtColor(cv2.flip(image, 1), cv2.COLOR_BGR2RGB)
+
     # To improve performance, optionally mark the image as not writeable to
     # pass by reference.
     image.flags.writeable = False
@@ -40,10 +43,18 @@ while cap.isOpened():
 
         new_coordenates = converter.convert_to_absolute(relative_coordenates)
 
-        print(coordenates)
-        print(new_coordenates)
+        print("="*80)
+        #print(coordenates)
+        #print("-" * 80)
+        #print(new_coordenates)
+        #print("-" * 80)
+
         if new_coordenates:
             for hand_landmarks in new_coordenates:
+                landmarks_count = 0
+                for landmarks in hand_landmarks.landmark:
+                    landmarks_count += 1
+                print(landmarks_count)
                 mp_drawing.draw_landmarks(image, hand_landmarks, mp_hands.HAND_CONNECTIONS)
     cv2.imshow('MediaPipe Hands', image)
     if cv2.waitKey(10) & 0xFF == 27:
@@ -51,7 +62,5 @@ while cap.isOpened():
 hands.close()
 cap.release()
 
-print(coordenates)
-print(relative_coordenates)
-print(absolute2_coordenates)
-
+#print(coordenates)
+#print(relative_coordenates)

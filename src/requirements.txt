@@ -10,3 +10,4 @@ wcwidth
 pillow
 matplotlib
 mediapipe
+pyzmq

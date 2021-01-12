@@ -5,42 +5,91 @@ namespace HandTracking
 
     public class HandTrackingClient : MonoBehaviour
     {
-        private HandTrackingRequester _helloRequester;
+        private HandTrackingRequester _handTrackingRequester;
 
         [SerializeField]
         private HandController hand;
 
-        private void Start()
+        /// <summary>
+        ///     Method to check if the hand tracking requester is waiting data or already received data
+        /// </summary>
+        /// <returns>True if waiting data</returns>
+        private bool IsWaitingJoints()
         {
-            _helloRequester = new HandTrackingRequester();
-            _helloRequester.Start();
+            return !_handTrackingRequester.DataReceived;
         }
 
-        private void Update()
+        /// <summary>
+        ///     Method to check if list of joints received is empty.
+        /// </summary>
+        /// <returns>True if list is empty</returns>
+        private bool IsEmptyJoints()
         {
-            if (!_helloRequester.DataReceived) return;
+            return _handTrackingRequester.Joints.Count <= 0;
+        }
 
-            Debug.Log("Running!");
-
-            if (_helloRequester.Joints.Count <= 0) return;
-
+        /// <summary>
+        ///     Set the values from joints received to hand model joints
+        /// </summary>
+        private void ProcessJoints()
+        {
             int i = 0;
 
-            foreach(HandController.Joint j in hand.Joints)
+            foreach (HandController.Joint j in hand.Joints)
             {
                 Debug.Log(j.Name);
 
                 if (j.Position != null)
-                    j.Position.position = _helloRequester.Joints[i];
+                    j.Position.position = _handTrackingRequester.Joints[i];
                 i++;
             }
 
-            _helloRequester.Joints.Clear();
+            _handTrackingRequester.Joints.Clear();
+        }
+
+        /// <summary>
+        ///     Restart the requester thread to receive new data
+        /// </summary>
+        private void RestartRequester()
+        {
+            if (_handTrackingRequester != null)
+            {
+                _handTrackingRequester.Stop();
+            }
+
+            _handTrackingRequester = new HandTrackingRequester();
+            _handTrackingRequester.Start();
+        }
+
+        /** Unity behaviour methods */
+
+        private void Start()
+        {
+            RestartRequester();
+        }
+
+        private void Update()
+        {
+            if (IsWaitingJoints())
+            {
+                Debug.Log("Wating data!");
+            }
+            else
+            {
+                Debug.Log("Running!");
+
+                if (!IsEmptyJoints())
+                {
+                    ProcessJoints();
+                }
+
+                //RestartRequester();
+            }
         }
 
         private void OnDestroy()
         {
-            _helloRequester.Stop();
+            _handTrackingRequester.Stop();
         }
     }
 }

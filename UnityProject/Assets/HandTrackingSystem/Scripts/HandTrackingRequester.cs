@@ -13,7 +13,6 @@ namespace HandTracking
 
     public class HandTrackingRequester : RunAbleThread
     {
-
         private const string VR_DEVICE_ADDRESS = "tcp://localhost:5555";
 
         private const string MSG_HANDSHAKE = "handtracking";
