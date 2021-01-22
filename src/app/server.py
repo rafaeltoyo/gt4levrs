@@ -6,6 +6,8 @@ import mediapipe as mp
 import mediapipe.python.solutions.drawing_utils as mp_drawing
 import mediapipe.python.solutions.hands as mp_hands
 
+from app.mediapipeutils import MediapipeHand
+
 
 def handling_frame(frame):
     if frame.shape[0] > frame.shape[1]:
@@ -34,7 +36,7 @@ hands = mp_hands.Hands(min_detection_confidence=0.5, min_tracking_confidence=0.5
 ################################################################################
 #   Starting WebCam
 ################################################################################
-cap = cv2.VideoCapture(1)
+cap = cv2.VideoCapture(0)
 
 while True:
 
@@ -53,6 +55,7 @@ while True:
 
     if not (message == "handtracking"):
         socket.send(b"error1")
+        print("error1")
         continue
 
     ########################################
@@ -62,6 +65,7 @@ while True:
 
     if not success:
         socket.send(b"error2")
+        print("error2")
         continue
 
     # Flip the image horizontally for a later selfie-view display, and convert
@@ -85,44 +89,29 @@ while True:
 
     if not results.multi_hand_landmarks:
         socket.send(b"error3")
+        print("error3")
         continue
 
-    coordenates = results.multi_hand_landmarks
-
     landmarks_count = 0
-    for hand_landmarks in coordenates:
+    for hand_landmarks in results.multi_hand_landmarks:
+        for landmarks in hand_landmarks.landmark:
+            landmarks_count += 1
         mp_drawing.draw_landmarks(image, hand_landmarks, mp_hands.HAND_CONNECTIONS)
-        landmarks_count += 1
 
     if landmarks_count != 21:
         socket.send(b"error4")
+        print("error4")
         continue
 
     #relative_coordenates = converter.convert_to_relative(absolute_coordenates=coordenates)
 
     #new_coordenates = converter.convert_to_absolute(relative_coordenates)
 
-    socket.send(b"ack")
+    for hand_landmarks in results.multi_hand_landmarks:
 
-    landmarks_count = 0
-    for hand_landmarks in coordenates:
-        mp_hands.HAND_CONNECTIONS
-        message = socket.recv_string()
-
-        if not (message == "next"):
-            socket.send(b"error5")
-            break
-
-        mp_drawing.draw_landmarks(image, hand_landmarks, mp_hands.HAND_CONNECTIONS)
-
-        landmarks_count += 1
-
-    print(landmarks_count)
-
-
-    for joint in xyz:
-
-        socket.send_string("joint;{};{};{}".format(joint[0], joint[1], joint[2]))
+        hand = MediapipeHand(hand_landmarks)
+        socket.send_string(str(hand))
+        break
 
     message = socket.recv_string()
     socket.send(b"end")

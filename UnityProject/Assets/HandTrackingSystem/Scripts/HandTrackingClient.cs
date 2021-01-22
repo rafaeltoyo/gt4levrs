@@ -72,11 +72,11 @@ namespace HandTracking
         {
             if (IsWaitingJoints())
             {
-                Debug.Log("Wating data!");
+                //Debug.Log("Wating data!");
             }
             else
             {
-                Debug.Log("Running!");
+                //Debug.Log("Running!");
 
                 if (!IsEmptyJoints())
                 {
