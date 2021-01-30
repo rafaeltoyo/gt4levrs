@@ -4,14 +4,13 @@ using UnityEngine;
 
 namespace HandTracking.Models
 {
-    public class Joint
+    public class HandJoint
     {
-        private string _name;
         private Vector3 _coordenates;
 
-        public Joint(string name)
+        public HandJoint(string name)
         {
-            _name = name;
+            Name = name;
         }
 
         public void Update(float x, float y, float z)
@@ -19,7 +18,7 @@ namespace HandTracking.Models
             _coordenates.Set(x, y, z);
         }
 
-        public string Name => _name;
+        public string Name { get; }
         public float X => _coordenates.x;
         public float Y => _coordenates.y;
         public float Z => _coordenates.z;
