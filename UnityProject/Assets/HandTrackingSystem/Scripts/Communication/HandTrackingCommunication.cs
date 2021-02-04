@@ -8,10 +8,15 @@ using NetMQ;
 using NetMQ.Sockets;
 using UnityEngine;
 
+using HandTracking.Models;
+using HandTracking.Parser;
+
 namespace HandTracking
 {
-
-    public class HandTrackingRequester : RunAbleThread
+    /// <summary>
+    ///     Classe de comunicação com o dispositivo de handtracking
+    /// </summary>
+    public class HandTrackingCommunication : RunAbleThread
     {
         private const string VR_DEVICE_ADDRESS = "tcp://localhost:5555";
 
@@ -25,12 +30,16 @@ namespace HandTracking
 
         private bool _dataReceived;
 
-        private Dictionary<string, Vector3> _joints;
+        private IHandTrackingDataParser _parser;
 
-        public HandTrackingRequester(): base()
+        private Hand _leftHand;
+
+        private Hand _rightHand;
+
+        public HandTrackingCommunication(IHandTrackingDataParser parser): base()
         {
-            _dataReceived = false;
-            _joints = new Dictionary<string, Vector3>();
+            _parser = parser;
+            CleanData();
         }
 
         public bool DataReceived {
@@ -45,7 +54,12 @@ namespace HandTracking
             }
         }
 
-        public Dictionary<string, Vector3> Joints { get => _joints; }
+        private void CleanData()
+        {
+            _dataReceived = false;
+            _leftHand = null;
+            _rightHand = null;
+        }
 
         private string TryRead(RequestSocket client)
         {
@@ -108,27 +122,7 @@ namespace HandTracking
 
                 if (coordenates != null && coordenates.Length > 0)
                 {
-                    string[] joints = coordenates.Split('|');
-
-                    // Request all joints until receive "end"
-                    for (int i = 0; i < joints.Length && Running; i++)
-                    {
-                        // Handling the server response
-                        Debug.Log(joints[i]);
-
-                        if (IsValidJoint(joints[i]))
-                        {
-                            float[] points = ParseJoint(joints[i]);
-
-                            Debug.Log(string.Format("{0}, {1}, {2}", points[0], points[1], points[2]));
-
-                            _joints.Add(new Vector3(points[0], points[1], points[2]));
-                        }
-                        else
-                        {
-                            break;
-                        }
-                    }
+                    _leftHand = _parser.Parse(coordenates);
                 }
 
             }

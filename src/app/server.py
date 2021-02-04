@@ -113,8 +113,8 @@ while True:
         socket.send_string(str(hand))
         break
 
-    message = socket.recv_string()
-    socket.send(b"end")
+    #message = socket.recv_string()
+    #socket.send(b"end")
 
     ########################################
 
