@@ -31,7 +31,8 @@ namespace HandTracking
         private void ProcessJoints()
         {
             Hand hand = parser.Parse(adapter.Data);
-            consumer.consume(hand);
+            if (hand != null)
+                consumer.consume(hand);
             adapter.CleanData();
         }
 
@@ -68,7 +69,7 @@ namespace HandTracking
 
                 ProcessJoints();
 
-                //RestartRequester();
+                RestartRequester();
             }
         }
 

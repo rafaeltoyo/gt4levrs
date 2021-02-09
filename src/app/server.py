@@ -107,6 +107,8 @@ while True:
 
     #new_coordenates = converter.convert_to_absolute(relative_coordenates)
 
+    number_of_hands = len(results.multi_hand_landmarks)
+
     for hand_landmarks in results.multi_hand_landmarks:
 
         hand = MediapipeHand(hand_landmarks)

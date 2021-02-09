@@ -32,19 +32,25 @@ namespace HandTracking.Parser
         private Hand ParseHand(string coordenates)
         {
             List<HandJoint> joints = new List<HandJoint>();
-
-            foreach (String joint in coordenates.Split('|'))
+            
+            foreach (string joint in coordenates.Split('|'))
             {
-                joints.Add(ParseJoint(joint));
+                HandJoint hj = ParseJoint(joint);
+                if (hj != null)
+                    joints.Add(hj);
             }
-            return new Hand(
-                joints[(ushort) MediapipeJoints.WRIST],
-                ParseFinger(MediapipeFingers.THUMB, joints),
-                ParseFinger(MediapipeFingers.INDEX, joints),
-                ParseFinger(MediapipeFingers.MIDDLE, joints),
-                ParseFinger(MediapipeFingers.RING, joints),
-                ParseFinger(MediapipeFingers.PINKY, joints)
-            );
+            if (joints.Count > 0) {
+                return new Hand(
+                    joints[(ushort) MediapipeJoints.WRIST],
+                    ParseFinger(MediapipeFingers.THUMB, joints),
+                    ParseFinger(MediapipeFingers.INDEX, joints),
+                    ParseFinger(MediapipeFingers.MIDDLE, joints),
+                    ParseFinger(MediapipeFingers.RING, joints),
+                    ParseFinger(MediapipeFingers.PINKY, joints)
+                );
+            } else {
+                return null;
+            }
         }
 
         /// <summary>
@@ -60,7 +66,7 @@ namespace HandTracking.Parser
                 return new HandJoint(values[0])
                     .Update(
                         ParseFloat(values[1]) * 3,
-                        ParseFloat(values[2]) * 3,
+                        ParseFloat(values[2]) * 3 * -1,
                         ParseFloat(values[3]) * 3
                     );
             }

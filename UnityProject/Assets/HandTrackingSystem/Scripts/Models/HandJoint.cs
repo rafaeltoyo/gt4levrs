@@ -4,15 +4,29 @@ using UnityEngine;
 
 namespace HandTracking.Models
 {
+    /// <summary>
+    ///     Hands joint representation
+    /// </summary>
     public class HandJoint
     {
         private Vector3 _coordenates;
 
+        /// <summary>
+        ///     Default constructor
+        /// </summary>
+        /// <param name="name">Name of joint</param>
         public HandJoint(string name)
         {
             Name = name;
         }
 
+        /// <summary>
+        ///     Update x,y,z values.
+        /// </summary>
+        /// <param name="x">x value</param>
+        /// <param name="y">y value</param>
+        /// <param name="z">z value</param>
+        /// <returns>Joint instance</returns>
         public HandJoint Update(float x, float y, float z)
         {
             _coordenates.Set(x, y, z);

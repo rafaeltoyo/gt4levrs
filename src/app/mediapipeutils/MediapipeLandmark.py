@@ -1,3 +1,4 @@
+import json
 
 class MediapipeLandmark:
 
@@ -8,4 +9,4 @@ class MediapipeLandmark:
         self.z = landmark.z
 
     def __str__(self):
-        return "{name};{x};{y};{z}".format(name=self.name, x=self.x, y=self.y, z=self.z)
+        return json.dumps(self.__dict__)

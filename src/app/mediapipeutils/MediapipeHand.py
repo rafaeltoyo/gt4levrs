@@ -1,5 +1,4 @@
-import mediapipe as mp
-import mediapipe.python.solutions.drawing_utils as mp_drawing
+import json
 import mediapipe.python.solutions.hands as mp_hands
 
 from .MediapipeLandmark import MediapipeLandmark
@@ -17,4 +16,4 @@ class MediapipeHand:
             count += 1
 
     def __str__(self):
-        return "|".join([str(x) for x in self.landmarks])
+        return json.dumps(self.__dict__)
