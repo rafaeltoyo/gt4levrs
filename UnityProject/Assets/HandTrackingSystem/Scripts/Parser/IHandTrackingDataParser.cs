@@ -4,6 +4,6 @@ namespace HandTracking.Parser
 {
     public interface IHandTrackingDataParser
     {
-        Hand Parse(string coordenates);
+        Hands Parse(string coordenates);
     }
 }

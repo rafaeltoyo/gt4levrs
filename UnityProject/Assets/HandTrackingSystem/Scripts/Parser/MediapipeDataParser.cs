@@ -1,8 +1,9 @@
-﻿using System;
+﻿using UnityEngine;
+
+using System;
 using System.Globalization;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
-using UnityEngine;
 
 using HandTracking.Models;
 
@@ -19,21 +20,32 @@ namespace HandTracking.Parser
         /// </summary>
         /// <param name="coordenates">String recebida com os dados</param>
         /// <returns>Objeto Hand</returns>
-        public Hand Parse(string coordenates)
+        public Hands Parse(string coordenates)
         {
-            return ParseHand(coordenates);
+            if (coordenates.StartsWith("error"))
+            {
+                Debug.Log("Error!");
+                return null;
+            }
+
+            MediapipeJson json = JsonUtility.FromJson<MediapipeJson>(coordenates);
+
+            return new Hands(ParseHand(json.lhand), ParseHand(json.rhand));
         }
 
         /// <summary>
         ///     Parse a hand from coordenates string
         /// </summary>
-        /// <param name="coordenates">String with joints</param>
+        /// <param name="coordenates">Parsed json</param>
         /// <returns>Parsed Hand</returns>
-        private Hand ParseHand(string coordenates)
+        private Hand ParseHand(MediapipeHandJson json)
         {
+            if (json == null)
+                return null;
+
             List<HandJoint> joints = new List<HandJoint>();
             
-            foreach (string joint in coordenates.Split('|'))
+            foreach (MediapipeJointJson joint in json.joints)
             {
                 HandJoint hj = ParseJoint(joint);
                 if (hj != null)
@@ -56,18 +68,17 @@ namespace HandTracking.Parser
         /// <summary>
         ///     Parse a joint from coordenate string
         /// </summary>
-        /// <param name="coordenates">String with name, x, y and z</param>
+        /// <param name="coordenates">Parsed json with name, x, y and z</param>
         /// <returns>Parsed joint</returns>
-        private HandJoint ParseJoint(string coordenates)
+        private HandJoint ParseJoint(MediapipeJointJson json)
         {
-            if (JOINT_MASK.IsMatch(coordenates))
+            if (json.name.Length > 0)
             {
-                string[] values = coordenates.Split(';');
-                return new HandJoint(values[0])
+                return new HandJoint(json.name)
                     .Update(
-                        ParseFloat(values[1]) * 3,
-                        ParseFloat(values[2]) * 3 * -1,
-                        ParseFloat(values[3]) * 3
+                        json.x * 3,
+                        json.y * 3 * -1,
+                        json.z * 3
                     );
             }
             return null;
@@ -100,6 +111,31 @@ namespace HandTracking.Parser
             {
                 return 0;
             }
+        }
+
+        [Serializable]
+        class MediapipeJson
+        {
+            public MediapipeHandJson lhand;
+            public MediapipeHandJson rhand;
+        }
+
+        [Serializable]
+        class MediapipeHandJson
+        {
+            public string index;
+            public double score;
+            public string label;
+            public List<MediapipeJointJson> joints;
+        }
+
+        [Serializable]
+        class MediapipeJointJson
+        {
+            public string name;
+            public float x;
+            public float y;
+            public float z;
         }
 
         enum MediapipeFingers : ushort
