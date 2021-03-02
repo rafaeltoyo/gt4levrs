@@ -4,7 +4,7 @@ import numpy as np
 import mediapipe.python.solutions.drawing_utils as mp_drawing
 import mediapipe.python.solutions.hands as mp_hands
 
-from src.app.mediapipeutils import MediapipeHand, MediapipeResultParser
+from app.mediapipeutils import MediapipeResultParser
 
 
 def handling_frame(frame):
@@ -24,7 +24,7 @@ def handling_frame(frame):
 ################################################################################
 context = zmq.Context()
 socket = context.socket(zmq.REP)
-socket.bind("tcp://*:5505")
+socket.bind("tcp://*:5555")
 
 ################################################################################
 #   Starting Hand-tracking
@@ -96,10 +96,10 @@ while True:
             landmarks_count += 1
         mp_drawing.draw_landmarks(image, hand_landmarks, mp_hands.HAND_CONNECTIONS)
 
-    if landmarks_count != 21:
-        socket.send(b"error4")
-        print("error4")
-        continue
+    #if landmarks_count != 21:
+        #socket.send(b"error4")
+        #print("error4")
+        #continue
 
     mediapipe_parser = MediapipeResultParser()
 

@@ -1,5 +1,7 @@
 ﻿using UnityEngine;
 
+using System;
+
 using HandTracking.Communication;
 using HandTracking.Parser;
 using HandTracking.Models;
@@ -14,7 +16,10 @@ namespace HandTracking
         private IHandTrackingDataParser parser = new MediapipeDataParser();
 
         [SerializeField]
-        private HandTrackingConsumer consumer;
+        private HandTrackingConsumer consumerLeftHand;
+
+        [SerializeField]
+        private HandTrackingConsumer consumerRightHand;
 
         /// <summary>
         ///     Method to check if the hand tracking requester is waiting data or already received data
@@ -30,9 +35,14 @@ namespace HandTracking
         /// </summary>
         private void ProcessJoints()
         {
-            Hand hand = parser.Parse(adapter.Data);
-            if (hand != null)
-                consumer.consume(hand);
+            Hands hands = parser.Parse(adapter.Data);
+            if (hands != null)
+            {
+                if (hands.LeftHand != null)
+                    consumerLeftHand.consume(hands.LeftHand);
+                if (hands.RightHand != null)
+                    consumerRightHand.consume(hands.RightHand);
+            }
             adapter.CleanData();
         }
 
