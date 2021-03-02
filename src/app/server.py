@@ -1,12 +1,10 @@
 import zmq
 import cv2
 import numpy as np
-
-import mediapipe as mp
 import mediapipe.python.solutions.drawing_utils as mp_drawing
 import mediapipe.python.solutions.hands as mp_hands
 
-from app.mediapipeutils import MediapipeHand
+from src.app.mediapipeutils import MediapipeHand, MediapipeResultParser
 
 
 def handling_frame(frame):
@@ -26,7 +24,7 @@ def handling_frame(frame):
 ################################################################################
 context = zmq.Context()
 socket = context.socket(zmq.REP)
-socket.bind("tcp://*:5555")
+socket.bind("tcp://*:5505")
 
 ################################################################################
 #   Starting Hand-tracking
@@ -103,20 +101,11 @@ while True:
         print("error4")
         continue
 
-    #relative_coordenates = converter.convert_to_relative(absolute_coordenates=coordenates)
+    mediapipe_parser = MediapipeResultParser()
 
-    #new_coordenates = converter.convert_to_absolute(relative_coordenates)
+    mediapipe_parsed_result = mediapipe_parser.parse(results)
 
-    number_of_hands = len(results.multi_hand_landmarks)
-
-    for hand_landmarks in results.multi_hand_landmarks:
-
-        hand = MediapipeHand(hand_landmarks)
-        socket.send_string(str(hand))
-        break
-
-    #message = socket.recv_string()
-    #socket.send(b"end")
+    socket.send_string(str(mediapipe_parsed_result))
 
     ########################################
 
