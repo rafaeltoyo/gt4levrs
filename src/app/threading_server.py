@@ -5,6 +5,7 @@ import mediapipe.python.solutions.drawing_utils as mp_drawing
 import mediapipe.python.solutions.hands as mp_hands
 
 from src.app.mediapipeutils import MediapipeResultParser
+from src.app.mediapipeutils.threading_queue import MediapipeThreadingQueue
 
 
 def handling_frame(frame):
@@ -29,12 +30,8 @@ socket.bind("tcp://*:5555")
 ################################################################################
 #   Starting Hand-tracking
 ################################################################################
-hands = mp_hands.Hands(min_detection_confidence=0.5, min_tracking_confidence=0.5)
-
-################################################################################
-#   Starting WebCam
-################################################################################
-cap = cv2.VideoCapture(0)
+mediapipe_queue = MediapipeThreadingQueue()
+mediapipe_queue.start_thread()
 
 while True:
 
@@ -56,30 +53,7 @@ while True:
         print("error1")
         continue
 
-    ########################################
-    # Stage 03 - Capture frame from cam
-
-    success, image = cap.read()
-
-    if not success:
-        socket.send(b"error2")
-        print("error2")
-        continue
-
-    # Flip the image horizontally for a later selfie-view display, and convert
-    # the BGR image to RGB.
-    image = cv2.cvtColor(cv2.flip(image, 1), cv2.COLOR_BGR2RGB)
-
-    ########################################
-    # Stage 04 - Call mediapipe
-    # To improve performance, optionally mark the image as not writeable to
-    # pass by reference.
-    image.flags.writeable = False
-    results = hands.process(image)
-
-    # Draw the hand annotations on the image.
-    image.flags.writeable = True
-    image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
+    image, results = mediapipe_queue.get_results()
 
     ########################################
     # Stage 05 - Check result
@@ -109,5 +83,4 @@ while True:
         break
 
 socket.close()
-hands.close()
-cap.release()
+mediapipe_queue.release()

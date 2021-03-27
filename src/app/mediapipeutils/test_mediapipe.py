@@ -1,6 +1,6 @@
 import cv2
 import mediapipe as mp
-from app.mediapipeutils import MediapipeResultParser
+from src.app.mediapipeutils import MediapipeResultParser
 
 mp_drawing = mp.solutions.drawing_utils
 mp_hands = mp.solutions.hands

@@ -44,10 +44,6 @@ while cap.isOpened():
         new_coordenates = converter.convert_to_absolute(relative_coordenates)
 
         print("="*80)
-        #print(coordenates)
-        #print("-" * 80)
-        #print(new_coordenates)
-        #print("-" * 80)
 
         if new_coordenates:
             for hand_landmarks in new_coordenates:
@@ -56,6 +52,7 @@ while cap.isOpened():
                     landmarks_count += 1
                 print(landmarks_count)
                 mp_drawing.draw_landmarks(image, hand_landmarks, mp_hands.HAND_CONNECTIONS)
+
     cv2.imshow('MediaPipe Hands', image)
     if cv2.waitKey(10) & 0xFF == 27:
         break
