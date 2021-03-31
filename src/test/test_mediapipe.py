@@ -1,14 +1,21 @@
+
+# Imports
 import cv2
 import mediapipe as mp
-from src.app.mediapipeutils import MediapipeResultParser
+from app.mediapipeutils import MediapipeResultParser
 
 mp_drawing = mp.solutions.drawing_utils
 mp_hands = mp.solutions.hands
 
 # For webcam input:
 hands = mp_hands.Hands(min_detection_confidence=0.5, min_tracking_confidence=0.5)
+
+# Webcam
 cap = cv2.VideoCapture(0)
+
 while cap.isOpened():
+
+    # get a new frame from webcam
     success, image = cap.read()
     if not success:
         print("Ignoring empty camera frame.")
@@ -35,5 +42,6 @@ while cap.isOpened():
     cv2.imshow('MediaPipe Hands', image)
     if cv2.waitKey(5) & 0xFF == 27:
         break
+
 hands.close()
 cap.release()
