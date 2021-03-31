@@ -49,7 +49,7 @@ class MediapipeResultParser:
                 if item["score"] > self.right_hand["score"]:
                     self.right_hand = item
 
-        return json.dumps({"lhand": self.left_hand, "rhand": self.right_hand})
+        return {"lhand": self.left_hand, "rhand": self.right_hand}
 
     def parse_hand(self, hand_landmarks):
         values = []

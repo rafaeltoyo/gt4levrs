@@ -40,7 +40,7 @@ namespace HandTracking.Parser
         /// <returns>Parsed Hand</returns>
         private Hand ParseHand(MediapipeHandJson json)
         {
-            if (json == null)
+            if (json == null || ! (json.joints is object))
                 return null;
 
             List<HandJoint> joints = new List<HandJoint>();
