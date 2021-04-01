@@ -1,2 +1,2 @@
 from .ServerWorker import ServerWorker
-from .HandtrackingWorker import HandTrackingWorker
+from .mediapipe_workers import HandTrackingWorker

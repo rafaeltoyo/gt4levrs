@@ -1,10 +1,8 @@
 from threading import Thread
 from queue import Queue, Empty
-
 import cv2
-
 from mediapipe.python.solutions.hands import Hands
-from app.mediapipeutils import MediapipeResultParser
+from src.app.mediapipeutils import MediapipeResultParser
 
 
 class HandTrackingHandler:
@@ -18,7 +16,7 @@ class HandTrackingHandler:
 
     def process(self, image) -> object:
         """
-        Process a frame that contains a person and return the positions of him hands
+        Process a frame that contains a person and return the positions of his hands
 
         Parameters
         ----------
@@ -76,7 +74,7 @@ class PoseEstimationWorker(Thread):
 
     def __init__(self, frame):
         """
-        This thread process the frame and extract person position
+        This thread process a frame and extract a person`s pose estimation
         The daemon options  is True because this process can be aborted when program stop
 
         Parameters

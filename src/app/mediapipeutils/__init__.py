@@ -1,3 +1,3 @@
-from .MediapipeHand import MediapipeHand
-from .MediapipeLandmark import MediapipeLandmark
-from .MediapipeResultParser import MediapipeResultParser
+from .mediapipe_hand import MediapipeHand
+from .mediapipe_landmark import MediapipeLandmark
+from .mediapipe_result_parser import MediapipeResultParser

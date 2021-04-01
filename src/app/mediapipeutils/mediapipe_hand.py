@@ -1,7 +1,7 @@
 import json
 import mediapipe.python.solutions.hands as mp_hands
 
-from .MediapipeLandmark import MediapipeLandmark
+from .mediapipe_landmark import MediapipeLandmark
 
 
 class MediapipeHand:
