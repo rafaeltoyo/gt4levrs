@@ -1,10 +1,8 @@
-import json
 from google.protobuf.json_format import MessageToDict
-
 import mediapipe.python.solutions.hands as mp_hands
 
 
-class MediapipeResultParser:
+class HandPoseResultParser:
 
     def __init__(self):
         self.left_hand = {
@@ -15,18 +13,13 @@ class MediapipeResultParser:
             "score": 0.0,
             "joints": []
         }
-        self._metadata = []
-        self._values = []
-        self._hand_index = 0
-        self._joint_index = 0
 
     def parse(self, result):
+        hand_data = result.multi_hand_landmarks
+        if not hand_data:
+            return {}
 
         parsed = []
-
-        # Expected same size
-        self._metadata = result.multi_handedness
-        self._values = result.multi_hand_landmarks
 
         for hand_handedness in result.multi_handedness:
             handedness = MessageToDict(hand_handedness)
@@ -36,10 +29,8 @@ class MediapipeResultParser:
                 "label": handedness["classification"][0]["label"]
             })
 
-        count = 0
-        for hand_landmarks in result.multi_hand_landmarks:
-            parsed[count]["joints"] = self.parse_hand(hand_landmarks)
-            count += 1
+        for index in range(hand_data):
+            parsed[index]["joints"] = self.parse_hand(hand_data.hand_landmarks[index])
 
         for item in parsed:
             if item["label"] == "Left":

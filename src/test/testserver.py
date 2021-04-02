@@ -1,7 +1,5 @@
 import time
 import zmq
-
-import cv2
 import numpy as np
 
 
