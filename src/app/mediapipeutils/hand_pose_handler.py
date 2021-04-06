@@ -1,6 +1,6 @@
 import cv2
 from mediapipe.python.solutions.hands import Hands
-from src.app.mediapipeutils import HandPoseResultParser
+from app.mediapipeutils import HandPoseResultParser
 import mediapipe as mp
 
 

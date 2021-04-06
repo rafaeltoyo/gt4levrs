@@ -1,12 +1,12 @@
 from threading import Thread
 from queue import Queue, Empty
 import cv2
-from src.app.mediapipeutils.body_pose_handler import BodyPoseHandler
-from src.app.mediapipeutils.hand_pose_handler import HandPoseHandler
+from app.mediapipeutils.body_pose_handler import BodyPoseHandler
+from app.mediapipeutils.hand_pose_handler import HandPoseHandler
 
 
 class MediapipeWorker(Thread):
-    def __init__(self, cap: cv2.VideoCapture, queue: Queue, show_image: bool):
+    def __init__(self, cap: cv2.VideoCapture, queue: Queue, show_image: bool = False):
         self.cap = cap
         self.hand_pose_handler = HandPoseHandler(min_detection_confidence=0.5, min_tracking_confidence=0.5)
         self.body_pose_handler = BodyPoseHandler()

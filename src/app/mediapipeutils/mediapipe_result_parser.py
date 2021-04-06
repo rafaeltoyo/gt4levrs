@@ -29,8 +29,8 @@ class HandPoseResultParser:
                 "label": handedness["classification"][0]["label"]
             })
 
-        for index in range(hand_data):
-            parsed[index]["joints"] = self.parse_hand(hand_data.hand_landmarks[index])
+        for index in range(len(hand_data)):
+            parsed[index]["joints"] = self.parse_hand(hand_data[index])
 
         for item in parsed:
             if item["label"] == "Left":

@@ -1,6 +1,6 @@
 from queue import Queue
 
-from src.app.threads import MediapipeWorker
+from app.threads import MediapipeWorker
 import cv2
 
 data = Queue(maxsize=1)

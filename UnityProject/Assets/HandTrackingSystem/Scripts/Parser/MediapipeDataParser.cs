@@ -11,30 +11,46 @@ namespace HandTracking.Parser
 {
     public class MediapipeDataParser : IHandTrackingDataParser
     {
-        private readonly Regex JOINT_MASK = new Regex(@"^[a-zA-Z_]+(;[0-9,.\-+e]+){3}");
 
         private List<HandJoint> _joints = new List<HandJoint>();
 
         /// <summary>
-        ///     Método responsável por converter a String de dados, recebida do serviço de handtracking, para objeto Hand.
+        ///     This method convert the received string into json and parse to Hands object
         /// </summary>
-        /// <param name="coordenates">String recebida com os dados</param>
-        /// <returns>Objeto Hand</returns>
-        public Hands Parse(string coordenates)
+        /// <param name="rawData">Received string</param>
+        /// <returns>Hands</returns>
+        public Hands Parse(string rawData)
         {
-            if (coordenates.StartsWith("error"))
+            if (rawData != null)
+            {
+                rawData = rawData.Trim();
+            }
+
+            if (rawData.Length <= 0 || rawData.StartsWith("error"))
             {
                 Debug.Log("Error!");
                 return null;
             }
 
-            MediapipeJson json = JsonUtility.FromJson<MediapipeJson>(coordenates);
+            MediapipeJson json = JsonUtility.FromJson<MediapipeJson>(rawData);
 
-            return new Hands(ParseHand(json.lhand), ParseHand(json.rhand));
+            return ParseHands(json);
         }
 
         /// <summary>
-        ///     Parse a hand from coordenates string
+        ///     Parse the hands from raw data string
+        /// </summary>
+        /// <param name="json"></param>
+        /// <returns></returns>
+        private Hands ParseHands(MediapipeJson json)
+        {
+            if (json == null || json.hand_results == null)
+                return null;
+            return new Hands(ParseHand(json.hand_results.lhand), ParseHand(json.hand_results.rhand));
+        }
+
+        /// <summary>
+        ///     Parse a hand from data string
         /// </summary>
         /// <param name="coordenates">Parsed json</param>
         /// <returns>Parsed Hand</returns>
@@ -66,7 +82,7 @@ namespace HandTracking.Parser
         }
 
         /// <summary>
-        ///     Parse a joint from coordenate string
+        ///     Parse a joint from data string
         /// </summary>
         /// <param name="coordenates">Parsed json with name, x, y and z</param>
         /// <returns>Parsed joint</returns>
@@ -101,6 +117,11 @@ namespace HandTracking.Parser
             );
         }
 
+        /// <summary>
+        ///     Convert a string into float value if its possible
+        /// </summary>
+        /// <param name="v">String of number</param>
+        /// <returns>Number</returns>
         private float ParseFloat(string v)
         {
             try
@@ -115,6 +136,19 @@ namespace HandTracking.Parser
 
         [Serializable]
         class MediapipeJson
+        {
+            public MediapipePoseJson body_results;
+            public MediapipeTwoHandsJson hand_results;
+        }
+
+        [Serializable]
+        class MediapipePoseJson
+        {
+            public List<MediapipeJointJson> joints;
+        }
+
+        [Serializable]
+        class MediapipeTwoHandsJson
         {
             public MediapipeHandJson lhand;
             public MediapipeHandJson rhand;
