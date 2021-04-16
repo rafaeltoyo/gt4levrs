@@ -9,10 +9,10 @@ public class MyDummyHand : HandTracking.HandTrackingConsumer
 
     public override void consume(Hand hand)
     {
-        Debug.Log(hand);
-
         Vector3[] coords = hand.ToVector3Array();
 
+        Debug.Log(hand.ToString());
+        
         for (int i = 0; i < coords.Length; i++)
         {
             joints[i].transform.position = coords[i];

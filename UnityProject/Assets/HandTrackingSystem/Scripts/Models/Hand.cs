@@ -112,7 +112,7 @@ namespace HandTracking.Models
 
         public override string ToString()
         {
-            return string.Format("[{0}; {1}; {2}; {3}; {4}]",
+            return string.Format("[ {0}, {1}, {2}, {3}, {4} ]",
                  Trumb.ToString(),
                  Index.ToString(),
                  Middle.ToString(),

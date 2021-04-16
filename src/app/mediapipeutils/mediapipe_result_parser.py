@@ -14,7 +14,19 @@ class HandPoseResultParser:
             "joints": []
         }
 
+    def reset_hands(self):
+        self.left_hand = {
+            "score": 0.0,
+            "joints": []
+        }
+        self.right_hand = {
+            "score": 0.0,
+            "joints": []
+        }
+
     def parse(self, result):
+        self.reset_hands()
+
         hand_data = result.multi_hand_landmarks
         if not hand_data:
             return {}

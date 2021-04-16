@@ -3,7 +3,6 @@
 using System;
 using System.Globalization;
 using System.Collections.Generic;
-using System.Text.RegularExpressions;
 
 using HandTracking.Models;
 
@@ -11,72 +10,105 @@ namespace HandTracking.Parser
 {
     public class MediapipeDataParser : IHandTrackingDataParser
     {
+        private const string ERROR_EMPTY_DATA = "Empty data!";
+        private const string ERROR_INVALID_JSON = "Problem while parsing json from raw data!";
+        private const string ERROR_EMPTY_HAND_DATA = "Empty hands data!";
 
-        private List<HandJoint> _joints = new List<HandJoint>();
+        private Vector3 reference;
 
         /// <summary>
         ///     This method convert the received string into json and parse to Hands object
         /// </summary>
         /// <param name="rawData">Received string</param>
         /// <returns>Hands</returns>
-        public Hands Parse(string rawData)
+        public HandTrackingData Parse(string rawData)
         {
-            if (rawData != null)
-            {
-                rawData = rawData.Trim();
-            }
+            if (String.IsNullOrWhiteSpace(rawData))
+                throw new Exception(ERROR_EMPTY_DATA);
 
-            if (rawData.Length <= 0 || rawData.StartsWith("error"))
-            {
-                Debug.Log("Error!");
-                return null;
-            }
+            rawData = rawData.Trim();
+
+            if (rawData.StartsWith("error"))
+                throw new Exception(rawData);
 
             MediapipeJson json = JsonUtility.FromJson<MediapipeJson>(rawData);
 
-            return ParseHands(json);
+            if (json == null)
+                throw new Exception(ERROR_INVALID_JSON);
+
+            if (json.hand_results == null || (json.hand_results.lhand == null && json.hand_results.rhand == null))
+                throw new Exception(ERROR_EMPTY_HAND_DATA);
+
+            ParsePose(json.body_results);
+
+            return ParseTwoHands(json.hand_results);
         }
 
         /// <summary>
-        ///     Parse the hands from raw data string
+        ///     Parse the position of user from json data
         /// </summary>
-        /// <param name="json"></param>
-        /// <returns></returns>
-        private Hands ParseHands(MediapipeJson json)
+        /// <param name="mpPose"></param>
+        private void ParsePose(MediapipePoseJson mpPose)
         {
-            if (json == null || json.hand_results == null)
-                return null;
-            return new Hands(ParseHand(json.hand_results.lhand), ParseHand(json.hand_results.rhand));
+            if (mpPose == null ||
+                mpPose.joints == null ||
+                mpPose.joints.Count <= 0)
+            {
+                if (this.reference == null)
+                    throw new Exception("Handtracking system needs a initial reference.");
+                return;
+            }
+
+            MediapipeJointJson leftShoulder = mpPose.joints[(ushort)MediapipePose.LEFT_SHOULDER];
+            MediapipeJointJson rightShoulder = mpPose.joints[(ushort)MediapipePose.RIGHT_SHOULDER];
+
+            this.reference = new Vector3(
+                (float) Math.Abs(leftShoulder.x - rightShoulder.x),
+                (float) Math.Abs(leftShoulder.y - rightShoulder.y),
+                (float) Math.Abs(leftShoulder.z - rightShoulder.z));
+        }
+
+        /// <summary>
+        ///     Parse the hands from json data
+        /// </summary>
+        /// <param name="mpHands"></param>
+        /// <returns></returns>
+        private HandTrackingData ParseTwoHands(MediapipeTwoHandsJson mpHands)
+        {
+            return new HandTrackingData(ParseHand(mpHands.lhand), ParseHand(mpHands.rhand), this.reference);
         }
 
         /// <summary>
         ///     Parse a hand from data string
         /// </summary>
-        /// <param name="coordenates">Parsed json</param>
+        /// <param name="mpHands">Parsed json</param>
         /// <returns>Parsed Hand</returns>
-        private Hand ParseHand(MediapipeHandJson json)
+        private Hand ParseHand(MediapipeHandJson mpHands)
         {
-            if (json == null || ! (json.joints is object))
-                return null;
+            if (mpHands == null || !(mpHands.joints is object))
+                throw new Exception(ERROR_EMPTY_HAND_DATA);
 
             List<HandJoint> joints = new List<HandJoint>();
-            
-            foreach (MediapipeJointJson joint in json.joints)
+
+            foreach (MediapipeJointJson mpJoint in mpHands.joints)
             {
-                HandJoint hj = ParseJoint(joint);
-                if (hj != null)
-                    joints.Add(hj);
+                HandJoint joint = ParseJoint(mpJoint);
+                if (joint != null)
+                    joints.Add(joint);
             }
-            if (joints.Count > 0) {
+            if (joints.Count > 0)
+            {
                 return new Hand(
-                    joints[(ushort) MediapipeJoints.WRIST],
+                    joints[(ushort)MediapipeJoints.WRIST],
                     ParseFinger(MediapipeFingers.THUMB, joints),
                     ParseFinger(MediapipeFingers.INDEX, joints),
                     ParseFinger(MediapipeFingers.MIDDLE, joints),
                     ParseFinger(MediapipeFingers.RING, joints),
                     ParseFinger(MediapipeFingers.PINKY, joints)
                 );
-            } else {
+            }
+            else
+            {
                 return null;
             }
         }
@@ -84,17 +116,17 @@ namespace HandTracking.Parser
         /// <summary>
         ///     Parse a joint from data string
         /// </summary>
-        /// <param name="coordenates">Parsed json with name, x, y and z</param>
+        /// <param name="mpJoint">Parsed json with name, x, y and z</param>
         /// <returns>Parsed joint</returns>
-        private HandJoint ParseJoint(MediapipeJointJson json)
+        private HandJoint ParseJoint(MediapipeJointJson mpJoint)
         {
-            if (json.name.Length > 0)
+            if (mpJoint.name.Length > 0)
             {
-                return new HandJoint(json.name)
+                return new HandJoint(mpJoint.name)
                     .Update(
-                        json.x * 3,
-                        json.y * 3 * -1,
-                        json.z * 3
+                        (float) (mpJoint.x * 10),
+                        (float) (mpJoint.y * 10 * -1),
+                        (float) (mpJoint.z * 10)
                     );
             }
             return null;
@@ -109,24 +141,24 @@ namespace HandTracking.Parser
         private HandFinger ParseFinger(MediapipeFingers finger, List<HandJoint> joints)
         {
             return new HandFinger(
-                joints[(ushort) MediapipeJoints.WRIST],
-                joints[(ushort) finger],
-                joints[(ushort) finger + 1],
-                joints[(ushort) finger + 2],
-                joints[(ushort) finger + 3]
+                joints[(ushort)MediapipeJoints.WRIST],
+                joints[(ushort)finger],
+                joints[(ushort)finger + 1],
+                joints[(ushort)finger + 2],
+                joints[(ushort)finger + 3]
             );
         }
 
         /// <summary>
         ///     Convert a string into float value if its possible
         /// </summary>
-        /// <param name="v">String of number</param>
+        /// <param name="value">String of number</param>
         /// <returns>Number</returns>
-        private float ParseFloat(string v)
+        private double ParseFloat(string value)
         {
             try
             {
-                return float.Parse(v, CultureInfo.InvariantCulture.NumberFormat);
+                return double.Parse(value, CultureInfo.InvariantCulture.NumberFormat);
             }
             catch (Exception)
             {
@@ -167,9 +199,15 @@ namespace HandTracking.Parser
         class MediapipeJointJson
         {
             public string name;
-            public float x;
-            public float y;
-            public float z;
+            public double x;
+            public double y;
+            public double z;
+        }
+
+        enum MediapipePose : ushort
+        {
+            LEFT_SHOULDER = 11,
+            RIGHT_SHOULDER = 12
         }
 
         enum MediapipeFingers : ushort

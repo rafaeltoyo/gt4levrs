@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
 using UnityEngine;
 
 namespace HandTracking.Models
@@ -45,13 +46,11 @@ namespace HandTracking.Models
 
         public override string ToString()
         {
-            return string.Format("{4}{0}; {1}; {2}; {3}{5}",
+            return string.Format("{{ \"name\": \"{0}\", \"x\": {1:0.###}, \"y\": {2:0.###}, \"z\"{3:0.###} }}",
                  Name.ToString(),
-                 X.ToString(),
-                 Y.ToString(),
-                 Z.ToString(),
-                 '{',
-                 '}');
+                 X.ToString(CultureInfo.InvariantCulture),
+                 Y.ToString(CultureInfo.InvariantCulture),
+                 Z.ToString(CultureInfo.InvariantCulture));
         }
     }
 }

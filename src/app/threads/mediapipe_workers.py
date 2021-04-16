@@ -43,6 +43,7 @@ class MediapipeWorker(Thread):
                 pass
             finally:
                 self.queue.put_nowait(mediapipe_results)
+                print(mediapipe_results)
 
         self.cap.release()
         print("Stopping HandTracking Worker!")

@@ -4,12 +4,15 @@ using UnityEngine;
 
 namespace HandTracking.Models
 {
-    public class Hands
+    public class HandTrackingData
     {
-        public Hands(Hand leftHand, Hand rightHand) {
+        public HandTrackingData(Hand leftHand, Hand rightHand, Vector3 reference) {
             LeftHand = leftHand;
             RightHand = rightHand;
+            Reference = reference;
         }
+
+        public Vector3 Reference { get; }
 
         public Hand LeftHand { get; }
 
