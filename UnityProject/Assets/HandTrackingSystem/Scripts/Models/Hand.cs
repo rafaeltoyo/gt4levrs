@@ -21,7 +21,7 @@ namespace HandTracking.Models
         public Hand(HandJoint wrist, HandFinger thumb, HandFinger index, HandFinger middle, HandFinger ring, HandFinger pinky)
         {
             Wrist = wrist;
-            Trumb = thumb;
+            Thumb = thumb;
             Index = index;
             Middle = middle;
             Ring = ring;
@@ -46,10 +46,10 @@ namespace HandTracking.Models
 
             joints[0] = Wrist.Coordenates;
 
-            joints[1] = Trumb.Joint0.Coordenates;
-            joints[2] = Trumb.Joint1.Coordenates;
-            joints[3] = Trumb.Joint2.Coordenates;
-            joints[4] = Trumb.Tip.Coordenates;
+            joints[1] = Thumb.Joint0.Coordenates;
+            joints[2] = Thumb.Joint1.Coordenates;
+            joints[3] = Thumb.Joint2.Coordenates;
+            joints[4] = Thumb.Tip.Coordenates;
 
             joints[5] = Index.Joint0.Coordenates;
             joints[6] = Index.Joint1.Coordenates;
@@ -79,28 +79,37 @@ namespace HandTracking.Models
             Vector3[] bones = new Vector3[21];
 
             // ???
-            bones[0] = (Trumb.Joint0.Coordenates - Wrist.Coordenates).normalized;
+            bones[0] = (Thumb.Joint0.Coordenates - Wrist.Coordenates).normalized;
             // Thumb Metacarpal
-            bones[1] = (Trumb.Joint1.Coordenates - Trumb.Joint0.Coordenates).normalized;
+            bones[1] = (Thumb.Joint1.Coordenates - Thumb.Joint0.Coordenates).normalized;
             // Thumb Proximal Phalanx
-            bones[2] = (Trumb.Joint2.Coordenates - Trumb.Joint1.Coordenates).normalized;
+            bones[2] = (Thumb.Joint2.Coordenates - Thumb.Joint1.Coordenates).normalized;
             // Thumb Distal Phalanx
-            bones[3] = (Trumb.Tip.Coordenates - Trumb.Joint2.Coordenates).normalized;
+            bones[3] = (Thumb.Tip.Coordenates - Thumb.Joint2.Coordenates).normalized;
 
             // Index Metacarpal
-            bones[0] = (Index.Joint0.Coordenates - Wrist.Coordenates).normalized;
+            bones[4] = (Middle.Joint0.Coordenates - Wrist.Coordenates).normalized;
             // Index Proximal Phalanx
-            bones[1] = (Index.Joint1.Coordenates - Index.Joint0.Coordenates).normalized;
+            bones[5] = (Middle.Joint1.Coordenates - Middle.Joint0.Coordenates).normalized;
             // Index Middle Phalanx
-            bones[2] = (Index.Joint2.Coordenates - Index.Joint1.Coordenates).normalized;
+            bones[6] = (Middle.Joint2.Coordenates - Middle.Joint1.Coordenates).normalized;
             // Index Distal Phalanx
-            bones[3] = (Index.Tip.Coordenates - Index.Joint2.Coordenates).normalized;
+            bones[7] = (Middle.Tip.Coordenates - Middle.Joint2.Coordenates).normalized;
+
+            // Index Metacarpal
+            bones[8] = (Index.Joint0.Coordenates - Wrist.Coordenates).normalized;
+            // Index Proximal Phalanx
+            bones[9] = (Index.Joint1.Coordenates - Index.Joint0.Coordenates).normalized;
+            // Index Middle Phalanx
+            bones[10] = (Index.Joint2.Coordenates - Index.Joint1.Coordenates).normalized;
+            // Index Distal Phalanx
+            bones[11] = (Index.Tip.Coordenates - Index.Joint2.Coordenates).normalized;
 
         }
 
         public HandJoint Wrist { get; }
 
-        public HandFinger Trumb { get; }
+        public HandFinger Thumb { get; }
 
         public HandFinger Index { get; }
 
@@ -113,7 +122,7 @@ namespace HandTracking.Models
         public override string ToString()
         {
             return string.Format("[ {0}, {1}, {2}, {3}, {4} ]",
-                 Trumb.ToString(),
+                 Thumb.ToString(),
                  Index.ToString(),
                  Middle.ToString(),
                  Ring.ToString(),

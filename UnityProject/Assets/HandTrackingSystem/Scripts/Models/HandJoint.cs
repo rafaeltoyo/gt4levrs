@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System;
 using System.Globalization;
 using UnityEngine;
 
@@ -34,6 +33,17 @@ namespace HandTracking.Models
             return this;
         }
 
+        public HandJoint Update(Vector3 xyz)
+        {
+            return this.Update(xyz.x, xyz.y, xyz.z);
+        }
+
+        public HandJoint Sum(Vector3 delta)
+        {
+            _coordenates += delta;
+            return this;
+        }
+
         public string Name { get; }
 
         public float X => _coordenates.x;
@@ -52,6 +62,11 @@ namespace HandTracking.Models
                  Y.ToString(CultureInfo.InvariantCulture),
                  Z.ToString(CultureInfo.InvariantCulture));
         }
+
+        public static HandJoint operator +(HandJoint target, HandJoint delta)
+        {
+            target._coordenates += delta._coordenates;
+            return target;
+        }
     }
 }
-

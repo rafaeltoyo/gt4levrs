@@ -15,19 +15,22 @@ public class MyDummyHand : HandTracking.HandTrackingConsumer
         
         for (int i = 0; i < coords.Length; i++)
         {
-            joints[i].transform.position = coords[i];
+            joints[i].transform.localPosition = coords[i];
         }
     }
 
     // Start is called before the first frame update
     void Start()
     {
+
         joints = new GameObject[21];
 
         for (int i = 0; i < joints.Length; i++)
         {
             joints[i] = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            joints[i].transform.SetParent(gameObject.transform);
             joints[i].transform.localScale = new Vector3(0.1f, 0.1f, 0.1f);
+            joints[i].GetComponent<Collider>().isTrigger = true;
         }
     }
 

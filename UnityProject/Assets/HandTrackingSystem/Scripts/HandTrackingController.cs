@@ -4,6 +4,7 @@ using System;
 
 using HandTracking.Communication;
 using HandTracking.Parser;
+using HandTracking.Parser.Mediapipe;
 using HandTracking.Models;
 
 namespace HandTracking
@@ -11,6 +12,8 @@ namespace HandTracking
 
     public class HandTrackingController : MonoBehaviour
     {
+        private GameObject reference;
+
         private CommunicationAdapter adapter;
 
         private IHandTrackingDataParser parser = new MediapipeDataParser();
@@ -44,6 +47,8 @@ namespace HandTracking
                         consumerLeftHand.consume(hands.LeftHand);
                     if (hands.RightHand != null)
                         consumerRightHand.consume(hands.RightHand);
+                    
+                    reference.transform.localPosition =new Vector3(hands.Reference.x * -10, hands.Reference.y * -10, hands.Reference.z);
                 }
             }
             catch (System.Exception)
@@ -72,6 +77,11 @@ namespace HandTracking
         void Start()
         {
             RestartRequester();
+
+            reference = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            reference.transform.SetParent(gameObject.transform);
+            reference.transform.localScale = new Vector3(1, 1, 1);
+            reference.GetComponent<Collider>().isTrigger = true;
         }
 
         void FixedUpdate()

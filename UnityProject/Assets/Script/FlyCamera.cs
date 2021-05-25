@@ -9,6 +9,8 @@ public class FlyCamera : MonoBehaviour
     public float dampingCoefficient = 5; // how quickly you break to a halt after you stop your input
     public bool focusOnEnable = true; // whether or not to focus and lock cursor immediately on enable
 
+    public bool enableMovement = true;
+
     Vector3 velocity; // current velocity
 
     bool Focused
@@ -37,14 +39,18 @@ public class FlyCamera : MonoBehaviour
             Focused = true;
 
         // Physics
-        velocity = Vector3.Lerp(velocity, Vector3.zero, dampingCoefficient * Time.deltaTime);
-        transform.position += velocity * Time.deltaTime;
+        if (enableMovement)
+        {
+            velocity = Vector3.Lerp(velocity, Vector3.zero, dampingCoefficient * Time.deltaTime);
+            transform.position += velocity * Time.deltaTime;
+        }
     }
 
     void UpdateInput()
     {
         // Position
-        velocity += GetAccelerationVector() * Time.deltaTime;
+        if (enableMovement)
+            velocity += GetAccelerationVector() * Time.deltaTime;
 
         // Rotation
         Vector2 mouseDelta = lookSensitivity * new Vector2(Input.GetAxis("Mouse X"), -Input.GetAxis("Mouse Y"));
