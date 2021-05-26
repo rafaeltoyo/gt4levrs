@@ -2,13 +2,19 @@
 # Imports
 import cv2
 import mediapipe as mp
-from src.app.mediapipeutils import HandPoseResultParser
+from app.mediapipeutils import HandPoseResultParser
+from mediapipe.python.solutions.pose import Pose
 
 mp_drawing = mp.solutions.drawing_utils
 mp_hands = mp.solutions.hands
 
 # For webcam input:
 hands = mp_hands.Hands(min_detection_confidence=0.5, min_tracking_confidence=0.5)
+bodyy = Pose(static_image_mode=False,
+                                        upper_body_only=False,
+                                        smooth_landmarks=True,
+                                        min_detection_confidence=0.5,
+                                        min_tracking_confidence=0.5)
 
 # Webcam
 cap = cv2.VideoCapture(0)
@@ -30,6 +36,7 @@ while cap.isOpened():
     # pass by reference.
     image.flags.writeable = False
     results = hands.process(image)
+    body_results = bodyy.process(image)
 
     # Draw the hand annotations on the image.
     image.flags.writeable = True
@@ -37,7 +44,9 @@ while cap.isOpened():
     if results.multi_hand_landmarks:
         for hand_landmarks in results.multi_hand_landmarks:
             mp_drawing.draw_landmarks(image, hand_landmarks, mp_hands.HAND_CONNECTIONS)
-        print(HandPoseResultParser().parse(results))
+    if body_results.pose_landmarks:
+        for landmark in body_results.pose_landmarks.landmark:
+        hpr = HandPoseResultParser().parse(results)
 
     cv2.imshow('MediaPipe Hands', image)
     if cv2.waitKey(5) & 0xFF == 27:

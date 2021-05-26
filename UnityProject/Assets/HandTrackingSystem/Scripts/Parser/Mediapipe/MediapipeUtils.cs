@@ -56,7 +56,9 @@ namespace HandTracking.Parser.Mediapipe
     enum MediapipePose : ushort
     {
         LEFT_SHOULDER = 11,
-        RIGHT_SHOULDER = 12
+        RIGHT_SHOULDER = 12,
+        LEFT_WRIST = 15,
+        RIGHT_WRIST = 16
     }
 
     enum MediapipeFingers : ushort

@@ -12,7 +12,6 @@ namespace HandTracking
 
     public class HandTrackingController : MonoBehaviour
     {
-        private GameObject reference;
 
         private CommunicationAdapter adapter;
 
@@ -48,7 +47,6 @@ namespace HandTracking
                     if (hands.RightHand != null)
                         consumerRightHand.consume(hands.RightHand);
                     
-                    reference.transform.localPosition =new Vector3(hands.Reference.x * -10, hands.Reference.y * -10, hands.Reference.z);
                 }
             }
             catch (System.Exception)
@@ -77,11 +75,6 @@ namespace HandTracking
         void Start()
         {
             RestartRequester();
-
-            reference = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-            reference.transform.SetParent(gameObject.transform);
-            reference.transform.localScale = new Vector3(1, 1, 1);
-            reference.GetComponent<Collider>().isTrigger = true;
         }
 
         void FixedUpdate()
