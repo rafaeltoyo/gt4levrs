@@ -2,8 +2,10 @@
 # Imports
 import cv2
 import mediapipe as mp
-from app.mediapipeutils import HandPoseResultParser
+from src.app.mediapipeutils import HandPoseResultParser
 from mediapipe.python.solutions.pose import Pose
+
+from src.app.mediapipeutils.mediapipe_result_normalizer import MediapipeResultNormalizer
 
 mp_drawing = mp.solutions.drawing_utils
 mp_hands = mp.solutions.hands
@@ -31,7 +33,7 @@ while cap.isOpened():
     # Flip the image horizontally for a later selfie-view display, and convert
     # the BGR image to RGB.
     image = cv2.cvtColor(cv2.flip(image, 1), cv2.COLOR_BGR2RGB)
-    
+
     # To improve performance, optionally mark the image as not writeable to
     # pass by reference.
     image.flags.writeable = False
@@ -44,9 +46,11 @@ while cap.isOpened():
     if results.multi_hand_landmarks:
         for hand_landmarks in results.multi_hand_landmarks:
             mp_drawing.draw_landmarks(image, hand_landmarks, mp_hands.HAND_CONNECTIONS)
+
+    parser = HandPoseResultParser()
     if body_results.pose_landmarks:
         for landmark in body_results.pose_landmarks.landmark:
-        hpr = HandPoseResultParser().parse(results)
+            hand_parsed_result = parser.parse_and_normalize(results)
 
     cv2.imshow('MediaPipe Hands', image)
     if cv2.waitKey(5) & 0xFF == 27:

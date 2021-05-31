@@ -49,7 +49,7 @@ class MediapipeWorker(Thread):
         print("Stopping HandTracking Worker!")
 
     def parse_mediapipe_results(self, body_results, hand_results):
-        hand_results = self.hand_pose_handler.parse(hand_results)
+        hand_results = self.hand_pose_handler.parse_and_normalize(hand_results)
         body_results = self.body_pose_handler.parse(body_results)
         mediapipe_results = {"hand_results": hand_results, "body_results": body_results}
         return mediapipe_results
