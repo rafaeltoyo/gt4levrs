@@ -16,11 +16,6 @@ class BodyPoseHandler:
         body_results = self.body_pose_estimator.process(input_frame)
         return body_results
 
-    @staticmethod
-    def print_result(image, results):
-        mp_drawing.draw_landmarks(image, results.pose_landmarks, mp.solutions.pose.POSE_CONNECTIONS)
-        return image
-
     def parse(self, body_results):
         if not body_results.pose_landmarks:
             return {}
@@ -39,3 +34,8 @@ class BodyPoseHandler:
             values.append(item)
 
         return values
+
+    @staticmethod
+    def print_result(image, results):
+        mp_drawing.draw_landmarks(image, results.pose_landmarks, mp.solutions.pose.POSE_CONNECTIONS)
+        return image

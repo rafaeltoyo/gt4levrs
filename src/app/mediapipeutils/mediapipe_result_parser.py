@@ -2,7 +2,7 @@ from google.protobuf.json_format import MessageToDict
 import mediapipe.python.solutions.hands as mp_hands
 from mediapipe.framework.formats.landmark_pb2 import NormalizedLandmarkList
 
-from src.app.mediapipeutils.mediapipe_result_normalizer import MediapipeResultNormalizer
+from app.mediapipeutils.mediapipe_result_normalizer import MediapipeResultNormalizer
 
 
 class HandPoseResultParser:
@@ -30,9 +30,11 @@ class HandPoseResultParser:
 
     def parse_and_normalize(self, result):
         parsed_result = self.parse(result)
-        normalized_z_hand_result = self.normalizer.scale_z_coordenate(parsed_result)
-        normalized_xyz_hand_result = self.normalizer.scale_xy_coordinate(normalized_z_hand_result)
-        return normalized_xyz_hand_result
+        return self.normalizer.normalize(parsed_result)
+
+        #normalized_z_hand_result = self.normalizer.scale_z_coordenate(parsed_result)
+        #normalized_xyz_hand_result = self.normalizer.scale_xy_coordinate(normalized_z_hand_result)
+        #return normalized_xyz_hand_result
 
     def parse(self, result):
         self.reset_hands()

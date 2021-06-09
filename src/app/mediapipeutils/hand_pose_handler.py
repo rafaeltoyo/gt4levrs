@@ -1,10 +1,12 @@
 import cv2
-from mediapipe.python.solutions.hands import Hands
-from app.mediapipeutils import HandPoseResultParser
 import mediapipe as mp
+from mediapipe.python.solutions.hands import Hands
+
+from . import HandPoseResultParser
 
 
 class HandPoseHandler:
+
     def __init__(self, min_detection_confidence=0.5, min_tracking_confidence=0.5):
         """ Hand tracking handler """
         self.hand_pose_estimator = Hands(
@@ -31,11 +33,10 @@ class HandPoseHandler:
         # pass by reference.
         input_frame.flags.writeable = False
         results = self.hand_pose_estimator.process(input_frame)
-
         return results
 
     def parse(self, hand_pose_results):
-        return self.result_parser.parse(hand_pose_results)
+        return self.result_parser.parse_and_normalize(hand_pose_results)
 
     @staticmethod
     def print_result(image, results):

@@ -2,7 +2,7 @@ from queue import Queue
 
 import cv2
 
-from src.app.threads import ServerWorker, MediapipeWorker
+from app.threads import ServerWorker, MediapipeWorker
 
 data = Queue(maxsize=1)
 
