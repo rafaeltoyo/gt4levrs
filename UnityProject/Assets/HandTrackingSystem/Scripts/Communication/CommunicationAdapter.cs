@@ -70,7 +70,6 @@ namespace HandTracking.Communication
 
                     // Waiting data from server
                     this.Data = TryRead(socket);
-                    Debug.Log(this.Data);
                 }
             }
             finally

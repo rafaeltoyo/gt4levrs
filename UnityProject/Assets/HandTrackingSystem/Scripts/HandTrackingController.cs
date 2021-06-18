@@ -4,6 +4,7 @@ using System;
 
 using HandTracking.Communication;
 using HandTracking.Parser;
+using HandTracking.Parser.Mediapipe;
 using HandTracking.Models;
 
 namespace HandTracking
@@ -11,6 +12,7 @@ namespace HandTracking
 
     public class HandTrackingController : MonoBehaviour
     {
+
         private CommunicationAdapter adapter;
 
         private IHandTrackingDataParser parser = new MediapipeDataParser();
@@ -35,14 +37,22 @@ namespace HandTracking
         /// </summary>
         private void ProcessJoints()
         {
-            Hands hands = parser.Parse(adapter.Data);
-            if (hands != null)
+            try
             {
-                if (hands.LeftHand != null)
-                    consumerLeftHand.consume(hands.LeftHand);
-                if (hands.RightHand != null)
-                    consumerRightHand.consume(hands.RightHand);
+                HandTrackingData hands = parser.Parse(adapter.Data);
+                if (hands != null)
+                {
+                    if (hands.LeftHand != null)
+                        consumerLeftHand.consume(hands.LeftHand);
+                    if (hands.RightHand != null)
+                        consumerRightHand.consume(hands.RightHand);
+                    
+                }
             }
+            catch (System.Exception)
+            {
+            }
+
             adapter.CleanData();
         }
 
@@ -62,12 +72,12 @@ namespace HandTracking
 
         /** Unity behaviour methods */
 
-        private void Start()
+        void Start()
         {
             RestartRequester();
         }
 
-        private void Update()
+        void FixedUpdate()
         {
             if (IsWaitingJoints())
             {
@@ -83,7 +93,7 @@ namespace HandTracking
             }
         }
 
-        private void OnDestroy()
+        void OnDestroy()
         {
             adapter.Stop();
         }
