@@ -1,4 +1,5 @@
 import math
+
 import numpy as np
 
 from handtracking.src.app.handler.wrapper import HandResultWrapper
@@ -9,17 +10,11 @@ class HandPositionParser:
     This class normalize the hands size using a desired scale factor.
     The difference between hand size and desired scale is going to adjust z coordinate.
     """
-
     DESIRED_SCALE_FACTOR = 0.2
-
     FIELD_OF_VIEW = 71
-
     MIN_XYZ_VALUE = 0
-
     MAX_XYZ_VALUE = 1
-
     ID_WRIST = 0
-
     ID_MIDDLE_MCP = 9
 
     def __init__(self,
@@ -102,7 +97,6 @@ class HandPositionParser:
             hand.data[:] += pivot
 
         # z adjustment
-
         if self.adjust_z:
             # Adjust the z coordinate
             # Bigger hands means more closer from webcam
@@ -112,8 +106,7 @@ class HandPositionParser:
 
         return hand
 
-    def _estimate_z(self,
-                    scale_factor: float):
+    def _estimate_z(self, scale_factor: float):
         image_size = self.max_xyz_value - self.min_xyz_value
         return image_size * (1 - scale_factor) / (2 * math.tan(self.field_of_view / 2))
 

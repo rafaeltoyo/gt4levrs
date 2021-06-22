@@ -1,7 +1,9 @@
 import os
 import sys
-from threading import Thread
+import time
 from queue import Queue, Empty
+from threading import Thread
+
 import cv2
 
 from handtracking.src.app.handler import PoseHandler
@@ -43,12 +45,14 @@ class HandTrackingWorker(Thread):
     def load_video_writer(self):
         fourcc = cv2.VideoWriter_fourcc(*'XVID')
         video_index = len(os.listdir("results")) // 2
-        self.out = cv2.VideoWriter("results/results" + str(video_index) + ".mp4", fourcc, 10, (640, 480), True)
-        self.input = cv2.VideoWriter("results/results_input" + str(video_index) + ".mp4", fourcc, 10, (640, 480), True)
+        self.out = cv2.VideoWriter("results/video_output" + str(video_index) + ".mp4", fourcc, 10, (640, 480), True)
+        self.input = cv2.VideoWriter("results/video_input" + str(video_index) + ".mp4", fourcc, 10, (640, 480), True)
 
     def _behaviour(self, debugging: bool):
         try:
             while self.cap.isOpened() and self.is_alive():
+                start_time = time.time()
+
                 # Get a new frame from webcam
                 success, input_frame = self.cap.read()
                 if not success:
@@ -63,7 +67,6 @@ class HandTrackingWorker(Thread):
 
                 if debugging:
                     cv2.imshow("Debugging results!", debug_image)
-                    print(debug_image.shape)
                     self.out.write(debug_image)
                     self.input.write(input_frame)
                     key = cv2.waitKey(1)
@@ -80,7 +83,8 @@ class HandTrackingWorker(Thread):
                 finally:
                     payload = parsed.json()
                     self.queue.put_nowait(payload)
-                    print(payload)
+                    fps_message = str(round(1 / (time.time() - start_time), 2)) + " fps"
+                    print(fps_message, payload)
         finally:
             self.cap.release()
             self.input.release()
