@@ -6,8 +6,8 @@ from threading import Thread
 
 import cv2
 
-from handtracking.src.app.handler import PoseHandler
-from handtracking.src.app.mediapipeadapter import MediaPipeHandPoseHandler, MediaPipeBodyPoseHandler
+from app.handler import PoseHandler
+from app.mediapipeadapter import MediaPipeHandPoseHandler, MediaPipeBodyPoseHandler
 
 
 class HandTrackingWorker(Thread):

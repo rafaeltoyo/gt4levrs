@@ -1,7 +1,7 @@
 import mediapipe.python.solutions.hands as mp_hands
 from google.protobuf.json_format import MessageToDict
 
-from handtracking.src.app.mediapipeutils.mediapipe_result_normalizer import MediapipeResultNormalizer
+from app.mediapipeutils.mediapipe_result_normalizer import MediapipeResultNormalizer
 
 
 class HandPoseResultParser:

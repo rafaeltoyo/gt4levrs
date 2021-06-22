@@ -2,7 +2,7 @@ import math
 
 import numpy as np
 
-from handtracking.src.app.handler.wrapper import HandResultWrapper
+from app.handler.wrapper import HandResultWrapper
 
 
 class HandPositionParser:

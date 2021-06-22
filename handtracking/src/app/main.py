@@ -2,7 +2,7 @@ from queue import Queue
 
 import cv2
 
-from handtracking.src.app.threads import HandTrackingWorker, ServerWorker
+from app.threads import HandTrackingWorker, ServerWorker
 
 queue = Queue(maxsize=1)
 

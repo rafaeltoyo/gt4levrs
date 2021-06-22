@@ -5,8 +5,8 @@ from typing import Optional
 from mediapipe.python.solutions.pose import Pose, PoseLandmark
 
 from .mp_utils import MediaPipePoseIndexMapper
+from ..handler.pose_handlers import BodyPoseHandler
 from ..handler.wrapper import BodyResultWrapper
-from ..mediapipeutils import BodyPoseHandler
 
 
 class MediaPipeBodyPoseHandler(BodyPoseHandler):

@@ -6,9 +6,9 @@ import numpy as np
 
 
 ########################################################################################################################
-from handtracking.src.app.handler.hand_position_parser import HandPositionParser
-from handtracking.src.app.handler.hand_selector_parser import HandSelectorParser
-from handtracking.src.app.handler.wrapper import HandResultWrapper, BodyResultWrapper
+from app.handler.hand_position_parser import HandPositionParser
+from app.handler.hand_selector_parser import HandSelectorParser
+from app.handler.wrapper import HandResultWrapper, BodyResultWrapper
 
 
 class HandsPoseHandler(ABC):
