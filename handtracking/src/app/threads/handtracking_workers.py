@@ -1,9 +1,11 @@
+import os
+import sys
 from threading import Thread
 from queue import Queue, Empty
 import cv2
 
-from app.handler import PoseHandler
-from app.mediapipeadapter import MediaPipeHandPoseHandler, MediaPipeBodyPoseHandler
+from handtracking.src.app.handler import PoseHandler
+from handtracking.src.app.mediapipeadapter import MediaPipeHandPoseHandler, MediaPipeBodyPoseHandler
 
 
 class HandTrackingWorker(Thread):
@@ -29,46 +31,58 @@ class HandTrackingWorker(Thread):
         show_image
             Active debug mode. This worker going to show each frame read.
         """
+        self.load_video_writer()
         self.cap = cap
-        self.handler = PoseHandler(MediaPipeHandPoseHandler(),
-                                   MediaPipeBodyPoseHandler())
+        self.handler = PoseHandler(MediaPipeHandPoseHandler(), MediaPipeBodyPoseHandler())
         self.queue = queue
         super().__init__(
             target=self._behaviour,
             args=[show_image],
             name="Server worker")
 
+    def load_video_writer(self):
+        fourcc = cv2.VideoWriter_fourcc(*'XVID')
+        video_index = len(os.listdir("results")) // 2
+        self.out = cv2.VideoWriter("results/results" + str(video_index) + ".mp4", fourcc, 10, (640, 480), True)
+        self.input = cv2.VideoWriter("results/results_input" + str(video_index) + ".mp4", fourcc, 10, (640, 480), True)
+
     def _behaviour(self, debugging: bool):
+        try:
+            while self.cap.isOpened() and self.is_alive():
+                # Get a new frame from webcam
+                success, input_frame = self.cap.read()
+                if not success:
+                    # If loading a video, use 'break' instead of 'continue'.
+                    continue
 
-        while self.cap.isOpened() and self.is_alive():
+                # Process hand and body pose estimation
+                hands, body, debug_image = self.handler.process(input_frame, debugging=debugging)
 
-            # Get a new frame from webcam
-            success, input_frame = self.cap.read()
-            if not success:
-                # If loading a video, use 'break' instead of 'continue'.
-                continue
+                # Flip and convert input frame colors
+                debug_image = cv2.cvtColor(cv2.flip(debug_image, 1), cv2.COLOR_RGB2BGR)
 
-            # Flip and convert input frame colors
-            input_frame = cv2.cvtColor(cv2.flip(input_frame, 1), cv2.COLOR_RGB2BGR)
+                if debugging:
+                    cv2.imshow("Debugging results!", debug_image)
+                    print(debug_image.shape)
+                    self.out.write(debug_image)
+                    self.input.write(input_frame)
+                    key = cv2.waitKey(1)
+                    if key == ord("q"):
+                        sys.exit()
 
-            # Process hand and body pose estimation
-            hands, body, debug_image = self.handler.process(input_frame, debugging=debugging)
+                # Parse results from MediaPipe
+                parsed = self.handler.parse(hands, body)
 
-            if debugging:
-                cv2.imshow("Debugging results!", debug_image)
-                cv2.waitKey(1)
-
-            # Parse results from MediaPipe
-            parsed = self.handler.parse(hands, body)
-
-            try:
-                self.queue.get_nowait()
-            except Empty:
-                pass
-            finally:
-                payload = parsed.json()
-                self.queue.put_nowait(payload)
-                print(payload)
-
-        self.cap.release()
-        print("Stopping HandTracking Worker!")
+                try:
+                    self.queue.get_nowait()
+                except Empty:
+                    pass
+                finally:
+                    payload = parsed.json()
+                    self.queue.put_nowait(payload)
+                    print(payload)
+        finally:
+            self.cap.release()
+            self.input.release()
+            self.out.release()
+            print("Stopping HandTracking Worker!")

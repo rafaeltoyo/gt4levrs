@@ -4,10 +4,9 @@ import mediapipe as mp
 from typing import Optional
 from mediapipe.python.solutions.pose import Pose, PoseLandmark
 
-from app.handler.wrapper import BodyResultWrapper
-from app.handler.pose_handlers import BodyPoseHandler
-
 from .mp_utils import MediaPipePoseIndexMapper
+from ..handler.wrapper import BodyResultWrapper
+from ..mediapipeutils import BodyPoseHandler
 
 
 class MediaPipeBodyPoseHandler(BodyPoseHandler):

@@ -4,12 +4,12 @@ from typing import List, Optional
 import cv2
 import numpy as np
 
-from app.handler.wrapper import HandResultWrapper, BodyResultWrapper
-from app.handler.hand_selector_parser import HandSelectorParser
-from app.handler.hand_position_parser import HandPositionParser
-
 
 ########################################################################################################################
+from handtracking.src.app.handler.hand_position_parser import HandPositionParser
+from handtracking.src.app.handler.hand_selector_parser import HandSelectorParser
+from handtracking.src.app.handler.wrapper import HandResultWrapper, BodyResultWrapper
+
 
 class HandsPoseHandler(ABC):
     """
@@ -105,7 +105,7 @@ class PoseHandler:
         if debugging:
             image.flags.writeable = True
             image = self.hand_handler.debug(image, hands)
-            image = self.body_handler.debug(image, body)
+            # image = self.body_handler.debug(image, body)
 
         return hands, body, image
 

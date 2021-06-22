@@ -2,7 +2,7 @@ from google.protobuf.json_format import MessageToDict
 import mediapipe.python.solutions.hands as mp_hands
 from mediapipe.framework.formats.landmark_pb2 import NormalizedLandmarkList
 
-from app.mediapipeutils.mediapipe_result_normalizer import MediapipeResultNormalizer
+from handtracking.src.app.mediapipeutils.mediapipe_result_normalizer import MediapipeResultNormalizer
 
 
 class HandPoseResultParser:

@@ -5,10 +5,10 @@ from typing import List
 from mediapipe.python.solutions.hands import Hands, HandLandmark
 from google.protobuf.json_format import MessageToDict
 
-from app.handler.wrapper import HandResultWrapper
-from app.handler.pose_handlers import HandsPoseHandler
 
 from .mp_utils import MediaPipeHandIndexMapper
+from ..handler.pose_handlers import HandsPoseHandler
+from ..handler.wrapper import HandResultWrapper
 
 
 class MediaPipeHandPoseHandler(HandsPoseHandler):
