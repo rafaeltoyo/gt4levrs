@@ -100,21 +100,15 @@ class PoseHandler:
         parsed_hands = self.hand_handler.parse(hands)
         parsed_body = self.body_handler.parse(body)
 
-        left_hand, right_hand = self.hands_selector.parse(parsed_hands)
-
-        self.hands_adjustment.desired_scale_factor = self._calculate_desired_adjustment_factor(parsed_body)
-        left_hand = self.hands_adjustment.parse(left_hand)
-        right_hand = self.hands_adjustment.parse(right_hand)
-
-        parsed_body.set_left_hand(left_hand)
-        parsed_body.set_right_hand(right_hand)
+        self.hands_selector.parse(parsed_hands, parsed_body)
+        self.hands_adjustment.parse(parsed_body)
 
         return parsed_body
 
     def _calculate_desired_adjustment_factor(self, parsed_body: BodyResultWrapper):
 
-        ref1 = parsed_body.data[HandPositionConfig.id_first_center_joint]
-        ref2 = parsed_body.data[HandPositionConfig.id_second_center_joint]
+        ref1 = parsed_body.data[HandPositionConfig.left_shoulder_ref]
+        ref2 = parsed_body.data[HandPositionConfig.right_shoulder_ref]
 
         distance = np.sqrt(np.sum((ref1 - ref2) ** 2))
         return distance * HandPositionConfig.desired_scale_factor

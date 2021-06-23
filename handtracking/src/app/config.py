@@ -29,10 +29,11 @@ class HandPositionConfig:
     adjust_size = True
     adjust_z = True
     desired_scale_factor = 0.2
+    ratio_between_palm_shoulder = 0.2
     field_of_view = 71
     min_xyz_value = 0
     max_xyz_value = 1
-    id_first_joint = HandLandmark.MIDDLE_FINGER_MCP
-    id_second_joint = HandLandmark.WRIST
-    id_first_center_joint = PoseLandmark.LEFT_SHOULDER
-    id_second_center_joint = PoseLandmark.RIGHT_SHOULDER
+    palm_joint_ref1 = HandLandmark.MIDDLE_FINGER_MCP
+    palm_joint_ref2 = HandLandmark.WRIST
+    left_shoulder_ref = PoseLandmark.LEFT_SHOULDER
+    right_shoulder_ref = PoseLandmark.RIGHT_SHOULDER
