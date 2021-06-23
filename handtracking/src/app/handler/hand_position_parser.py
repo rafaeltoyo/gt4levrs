@@ -122,7 +122,7 @@ class HandPositionParser:
             # Close means more further from you
             # Positive values of z means further from you
             if shoulder_distance > 0:
-                real_palm_desired = shoulder_distance * self.ratio_between_palm_shoulder
+                real_palm_desired = shoulder_distance * self.ratio_between_palm_shoulder / actual_scale_factor
                 hand.data[:] -= (0, 0, self._estimate_z(real_palm_desired))
             else:
                 hand.data[:] -= (0, 0, self._estimate_z(scale_factor_adjust))

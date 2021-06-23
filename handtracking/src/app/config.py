@@ -29,7 +29,7 @@ class HandPositionConfig:
     adjust_size = True
     adjust_z = True
     desired_scale_factor = 0.2
-    ratio_between_palm_shoulder = 0.2
+    ratio_between_palm_shoulder = 0.3
     field_of_view = 71
     min_xyz_value = 0
     max_xyz_value = 1
