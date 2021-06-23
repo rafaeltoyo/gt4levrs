@@ -3,6 +3,12 @@ from mediapipe.python.solutions.hands import HandLandmark
 from mediapipe.python.solutions.pose import PoseLandmark
 
 
+class DebugOption:
+    debug_video = False
+    record_video = False
+    debug_console = True
+
+
 class ServerConfig:
     protocol = "tcp"
     address = "*"
