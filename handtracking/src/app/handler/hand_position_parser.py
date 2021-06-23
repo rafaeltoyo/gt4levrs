@@ -11,10 +11,6 @@ class HandPositionParser:
     This class normalize the hands size using a desired scale factor.
     The difference between hand size and desired scale is going to adjust z coordinate.
     """
-    DESIRED_SCALE_FACTOR = 0.2
-    FIELD_OF_VIEW = 71
-    MIN_XYZ_VALUE = 0
-    MAX_XYZ_VALUE = 1
     ID_WRIST = 0
     ID_MIDDLE_MCP = 9
 

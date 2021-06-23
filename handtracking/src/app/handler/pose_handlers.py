@@ -4,11 +4,12 @@ from typing import List, Optional
 import cv2
 import numpy as np
 
-
-########################################################################################################################
+from ..config import HandPositionConfig
 from app.handler.hand_position_parser import HandPositionParser
 from app.handler.hand_selector_parser import HandSelectorParser
 from app.handler.wrapper import HandResultWrapper, BodyResultWrapper
+
+########################################################################################################################
 
 
 class HandsPoseHandler(ABC):
@@ -63,13 +64,7 @@ class PoseHandler:
 
     def __init__(self,
                  hand_handler: HandsPoseHandler,
-                 body_handler: BodyPoseHandler,
-                 desired_scale_factor: float = HandPositionParser.DESIRED_SCALE_FACTOR,
-                 field_of_view: float = HandPositionParser.FIELD_OF_VIEW,
-                 joint_ref1_id: int = HandPositionParser.ID_MIDDLE_MCP,
-                 joint_ref2_id: int = HandPositionParser.ID_WRIST,
-                 min_xyz_value: float = HandPositionParser.MIN_XYZ_VALUE,
-                 max_xyz_value: float = HandPositionParser.MAX_XYZ_VALUE):
+                 body_handler: BodyPoseHandler):
         """
 
         Parameters
@@ -81,15 +76,7 @@ class PoseHandler:
         self.hand_handler = hand_handler
         self.body_handler = body_handler
         self.hands_selector = HandSelectorParser()
-        self.hands_adjustment = HandPositionParser(
-            adjust_size=True,
-            adjust_z=True,
-            joint_ref1_id=joint_ref1_id,
-            joint_ref2_id=joint_ref2_id,
-            min_xyz_value=min_xyz_value,
-            max_xyz_value=max_xyz_value,
-            desired_scale_factor=desired_scale_factor,
-            field_of_view=field_of_view)
+        self.hands_adjustment = HandPositionParser()
 
     def process(self, image: np.ndarray, debugging: bool = False):
         # Flip the image horizontally for a later selfie-view display, and convert the BGR image to RGB.
@@ -115,6 +102,7 @@ class PoseHandler:
 
         left_hand, right_hand = self.hands_selector.parse(parsed_hands)
 
+        self.hands_adjustment.desired_scale_factor = self._calculate_desired_adjustment_factor(parsed_body)
         left_hand = self.hands_adjustment.parse(left_hand)
         right_hand = self.hands_adjustment.parse(right_hand)
 
@@ -122,5 +110,14 @@ class PoseHandler:
         parsed_body.set_right_hand(right_hand)
 
         return parsed_body
+
+    def _calculate_desired_adjustment_factor(self, parsed_body: BodyResultWrapper):
+
+        ref1 = parsed_body.data[HandPositionConfig.id_first_center_joint]
+        ref2 = parsed_body.data[HandPositionConfig.id_second_center_joint]
+
+        distance = np.sqrt(np.sum((ref1 - ref2) ** 2))
+        return distance * HandPositionConfig.desired_scale_factor
+
 
 ########################################################################################################################

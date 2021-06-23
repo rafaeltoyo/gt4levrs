@@ -1,4 +1,8 @@
 
+from mediapipe.python.solutions.hands import HandLandmark
+from mediapipe.python.solutions.pose import PoseLandmark
+
+
 class ServerConfig:
     protocol = "tcp"
     address = "*"
@@ -28,5 +32,7 @@ class HandPositionConfig:
     field_of_view = 71
     min_xyz_value = 0
     max_xyz_value = 1
-    id_first_joint = 0
-    id_second_joint = 9
+    id_first_joint = HandLandmark.MIDDLE_FINGER_MCP
+    id_second_joint = HandLandmark.WRIST
+    id_first_center_joint = PoseLandmark.LEFT_SHOULDER
+    id_second_center_joint = PoseLandmark.RIGHT_SHOULDER
