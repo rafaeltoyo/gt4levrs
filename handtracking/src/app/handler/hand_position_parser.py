@@ -73,7 +73,9 @@ class HandPositionParser:
         :return:
         """
 
-        shoulder_distance = self.calculate_shoulder_distance(body.data)
+        shoulder_distance = 0
+        if body.data is not None and body.data.shape[0] > 0:
+            shoulder_distance = self.calculate_shoulder_distance(body.data)
 
         if body.left_hand:
             body.left_hand = self.parse_hand(body.left_hand, shoulder_distance)

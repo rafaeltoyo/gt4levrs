@@ -92,7 +92,7 @@ class PoseHandler:
         if debugging:
             image.flags.writeable = True
             image = self.hand_handler.debug(image, hands)
-            image = self.body_handler.debug(image, body)
+            # image = self.body_handler.debug(image, body)
 
         return hands, body, image
 

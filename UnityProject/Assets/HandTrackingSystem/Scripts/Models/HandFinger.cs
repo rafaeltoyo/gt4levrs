@@ -26,6 +26,15 @@ namespace HandTracking.Models
             Tip = tip;
         }
 
+        public void SetWristPosition(Vector3 wrist)
+        {
+            Wrist.Update(wrist);
+            Joint0.Sum(wrist);
+            Joint1.Sum(wrist);
+            Joint2.Sum(wrist);
+            Tip.Sum(wrist);
+        }
+
         public HandJoint Wrist { get; }
 
         public HandJoint Joint0 { get; }
