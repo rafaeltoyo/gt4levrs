@@ -4,6 +4,7 @@ import mediapipe as mp
 from typing import Optional
 from mediapipe.python.solutions.pose import Pose, PoseLandmark
 
+from ..config import MediaPipePoseConfig
 from .mp_utils import MediaPipePoseIndexMapper
 from ..handler.pose_handlers import BodyPoseHandler
 from ..handler.wrapper import BodyResultWrapper
@@ -15,11 +16,11 @@ class MediaPipeBodyPoseHandler(BodyPoseHandler):
     """
 
     def __init__(self,
-                 static_image_mode: bool = False,
-                 upper_body_only: bool = False,
-                 smooth_landmarks: bool = True,
-                 min_detection_confidence: float = 0.5,
-                 min_tracking_confidence: float = 0.5):
+                 static_image_mode: bool = MediaPipePoseConfig.static_image_mode,
+                 upper_body_only: bool = MediaPipePoseConfig.upper_body_only,
+                 smooth_landmarks: bool = MediaPipePoseConfig.smooth_landmarks,
+                 min_detection_confidence: float = MediaPipePoseConfig.min_detection_confidence,
+                 min_tracking_confidence: float = MediaPipePoseConfig.min_tracking_confidence):
         super().__init__()
 
         self._solution = Pose(

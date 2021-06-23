@@ -1,6 +1,6 @@
 import cv2
 
-from app.mediapipe import MediaPipeHandPoseHandler, MediaPipeBodyPoseHandler
+from app.mediapipeadapter import MediaPipeHandPoseHandler, MediaPipeBodyPoseHandler
 
 ########################################################################################################################
 # MediaPipe models

@@ -2,6 +2,7 @@ import math
 
 import numpy as np
 
+from ..config import HandPositionConfig
 from app.handler.wrapper import HandResultWrapper
 
 
@@ -18,14 +19,14 @@ class HandPositionParser:
     ID_MIDDLE_MCP = 9
 
     def __init__(self,
-                 adjust_size: bool = True,
-                 adjust_z: bool = True,
-                 desired_scale_factor: float = DESIRED_SCALE_FACTOR,
-                 field_of_view: float = FIELD_OF_VIEW,
-                 joint_ref1_id: int = ID_MIDDLE_MCP,
-                 joint_ref2_id: int = ID_WRIST,
-                 min_xyz_value: float = MIN_XYZ_VALUE,
-                 max_xyz_value: float = MAX_XYZ_VALUE):
+                 adjust_size: bool = HandPositionConfig.adjust_size,
+                 adjust_z: bool = HandPositionConfig.adjust_z,
+                 desired_scale_factor: float = HandPositionConfig.desired_scale_factor,
+                 field_of_view: float = HandPositionConfig.field_of_view,
+                 joint_ref1_id: int = HandPositionConfig.id_first_joint,
+                 joint_ref2_id: int = HandPositionConfig.id_second_joint,
+                 min_xyz_value: float = HandPositionConfig.min_xyz_value,
+                 max_xyz_value: float = HandPositionConfig.max_xyz_value):
         """
         Parameters
         ----------

@@ -1,6 +1,6 @@
 from queue import Queue
 
-from app import HandTrackingWorker
+from app.threads import HandTrackingWorker
 import cv2
 
 data = Queue(maxsize=1)

@@ -19,3 +19,14 @@ class MediaPipeHandConfig:
     max_num_hands = 2
     min_detection_confidence = 0.5
     min_tracking_confidence = 0.5
+
+
+class HandPositionConfig:
+    adjust_size = True
+    adjust_z = True
+    desired_scale_factor = 0.2
+    field_of_view = 71
+    min_xyz_value = 0
+    max_xyz_value = 1
+    id_first_joint = 0
+    id_second_joint = 9
