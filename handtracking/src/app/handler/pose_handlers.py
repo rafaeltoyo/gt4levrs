@@ -78,6 +78,9 @@ class PoseHandler:
         body_handler
         debugging
         """
+        self.frame_count = 0
+        self.body_buffer_result = None
+
         self.hand_handler = hand_handler
         self.body_handler = body_handler
         self.hands_selector = HandSelectorParser()
@@ -100,14 +103,18 @@ class PoseHandler:
 
         # Process
         hands = self.hand_handler.process(image)
-        body = self.body_handler.process(image)
+
+        if self.frame_count % 10 == 0:
+            self.body_buffer_result = self.body_handler.process(image)
 
         if debugging:
             image.flags.writeable = True
             image = self.hand_handler.debug(image, hands)
-            # image = self.body_handler.debug(image, body)
+            image = self.body_handler.debug(image, self.body_buffer_result)
 
-        return hands, body, image
+        self.frame_count += 1
+
+        return hands, self.body_buffer_result, image
 
     def parse(self, hands: any, body: any):
         parsed_hands = self.hand_handler.parse(hands)

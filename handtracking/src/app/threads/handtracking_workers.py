@@ -59,8 +59,10 @@ class HandTrackingWorker(Thread):
                     # If loading a video, use 'break' instead of 'continue'.
                     continue
 
+                start2_time = time.time()
                 # Process hand and body pose estimation
                 hands, body, debug_image = self.handler.process(input_frame, debugging=debugging)
+                print(1 / (time.time() - start2_time))
 
                 # Flip and convert input frame colors
                 debug_image = cv2.cvtColor(cv2.flip(debug_image, 1), cv2.COLOR_RGB2BGR)
