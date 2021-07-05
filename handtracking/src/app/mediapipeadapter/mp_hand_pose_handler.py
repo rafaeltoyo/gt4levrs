@@ -6,6 +6,7 @@ from mediapipe.python.solutions.hands import Hands, HandLandmark
 from google.protobuf.json_format import MessageToDict
 
 
+from ..config import MediaPipeHandConfig
 from .mp_utils import MediaPipeHandIndexMapper
 from ..handler.pose_handlers import HandsPoseHandler
 from ..handler.wrapper import HandResultWrapper
@@ -17,10 +18,10 @@ class MediaPipeHandPoseHandler(HandsPoseHandler):
     """
 
     def __init__(self,
-                 static_image_mode: bool = False,
-                 max_num_hands: int = 2,
-                 min_detection_confidence: float = 0.5,
-                 min_tracking_confidence: float = 0.5):
+                 static_image_mode: bool = MediaPipeHandConfig.static_image_mode,
+                 max_num_hands: int = MediaPipeHandConfig.max_num_hands,
+                 min_detection_confidence: float = MediaPipeHandConfig.min_detection_confidence,
+                 min_tracking_confidence: float = MediaPipeHandConfig.min_tracking_confidence):
         """
 
         Parameters

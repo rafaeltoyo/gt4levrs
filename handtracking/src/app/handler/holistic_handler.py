@@ -20,13 +20,7 @@ from mediapipe.python.solutions.holistic import Holistic
 
 class HolisticHandler:
 
-    def __init__(self,
-                 desired_scale_factor: float = HandPositionParser.DESIRED_SCALE_FACTOR,
-                 field_of_view: float = HandPositionParser.FIELD_OF_VIEW,
-                 joint_ref1_id: int = HandPositionParser.ID_MIDDLE_MCP,
-                 joint_ref2_id: int = HandPositionParser.ID_WRIST,
-                 min_xyz_value: float = HandPositionParser.MIN_XYZ_VALUE,
-                 max_xyz_value: float = HandPositionParser.MAX_XYZ_VALUE):
+    def __init__(self):
         """
 
         Parameters
@@ -43,15 +37,7 @@ class HolisticHandler:
                                          min_detection_confidence=0.5,
                                          min_tracking_confidence=0.5)
         self.hands_selector = HandSelectorParser()
-        self.hands_adjustment = HandPositionParser(
-            adjust_size=True,
-            adjust_z=True,
-            joint_ref1_id=joint_ref1_id,
-            joint_ref2_id=joint_ref2_id,
-            min_xyz_value=min_xyz_value,
-            max_xyz_value=max_xyz_value,
-            desired_scale_factor=desired_scale_factor,
-            field_of_view=field_of_view)
+        self.hands_adjustment = HandPositionParser()
 
     def get_parsed_result(self, image: np.ndarray, debugging: bool = False):
         unparsed_results, image = self.process(image, debugging=debugging)
@@ -82,12 +68,9 @@ class HolisticHandler:
     def parse(self, unparsed_holistic_results):
         parsed_body = self.parse_body(unparsed_holistic_results)
         parsed_hands = self.parse_hands(unparsed_holistic_results)
-        left_hand, right_hand = self.hands_selector.parse(parsed_hands)
-        left_hand = self.hands_adjustment.parse(left_hand)
-        right_hand = self.hands_adjustment.parse(right_hand)
 
-        parsed_body.set_left_hand(left_hand)
-        parsed_body.set_right_hand(right_hand)
+        self.hands_selector.parse(parsed_hands, parsed_body)
+        self.hands_adjustment.parse(parsed_body)
 
         return parsed_body
 

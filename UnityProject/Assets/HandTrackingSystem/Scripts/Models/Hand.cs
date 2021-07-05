@@ -28,6 +28,16 @@ namespace HandTracking.Models
             Pinky = pinky;
         }
 
+        public void SetWristPosition(Vector3 wrist)
+        {
+            Wrist.Update(wrist);
+            Thumb.SetWristPosition(wrist);
+            Index.SetWristPosition(wrist);
+            Middle.SetWristPosition(wrist);
+            Ring.SetWristPosition(wrist);
+            Pinky.SetWristPosition(wrist);
+        }
+
         /// <summary>
         ///     Get a sequence of joints <br/>
         /// <list type="number">

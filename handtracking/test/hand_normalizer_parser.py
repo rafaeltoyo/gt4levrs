@@ -29,8 +29,8 @@ class HandNormalizerParserTest(TestCase):
 
         HandPositionParser(
             desired_scale_factor=0.5,
-            joint_ref1_id=1,
-            joint_ref2_id=2,
+            palm_joint_ref1_id=1,
+            palm_joint_ref2_id=2,
             min_xyz_value=0,
             max_xyz_value=2
         ).parse(mock)

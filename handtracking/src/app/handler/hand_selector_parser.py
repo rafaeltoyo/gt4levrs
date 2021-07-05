@@ -32,6 +32,6 @@ class HandSelectorParser:
                     right_hand = hand
 
         if body:
-            body.set_left_hand(left_hand)
-            body.set_right_hand(right_hand)
+            body.left_hand = left_hand
+            body.right_hand = right_hand
         return left_hand, right_hand

@@ -4,11 +4,12 @@ from typing import List, Optional
 import cv2
 import numpy as np
 
+from .hand_position_parser import HandPositionParser
+from .hand_selector_parser import HandSelectorParser
+from .wrapper import BodyResultWrapper, HandResultWrapper
+from ..config import HandPositionConfig
 
 ########################################################################################################################
-from handtracking.src.app.handler.hand_position_parser import HandPositionParser
-from handtracking.src.app.handler.hand_selector_parser import HandSelectorParser
-from handtracking.src.app.handler.wrapper import HandResultWrapper, BodyResultWrapper
 
 
 class HandsPoseHandler(ABC):
@@ -63,13 +64,7 @@ class PoseHandler:
 
     def __init__(self,
                  hand_handler: HandsPoseHandler,
-                 body_handler: BodyPoseHandler,
-                 desired_scale_factor: float = HandPositionParser.DESIRED_SCALE_FACTOR,
-                 field_of_view: float = HandPositionParser.FIELD_OF_VIEW,
-                 joint_ref1_id: int = HandPositionParser.ID_MIDDLE_MCP,
-                 joint_ref2_id: int = HandPositionParser.ID_WRIST,
-                 min_xyz_value: float = HandPositionParser.MIN_XYZ_VALUE,
-                 max_xyz_value: float = HandPositionParser.MAX_XYZ_VALUE):
+                 body_handler: BodyPoseHandler):
         """
 
         Parameters
@@ -84,15 +79,7 @@ class PoseHandler:
         self.hand_handler = hand_handler
         self.body_handler = body_handler
         self.hands_selector = HandSelectorParser()
-        self.hands_adjustment = HandPositionParser(
-            adjust_size=True,
-            adjust_z=True,
-            joint_ref1_id=joint_ref1_id,
-            joint_ref2_id=joint_ref2_id,
-            min_xyz_value=min_xyz_value,
-            max_xyz_value=max_xyz_value,
-            desired_scale_factor=desired_scale_factor,
-            field_of_view=field_of_view)
+        self.hands_adjustment = HandPositionParser()
 
     def get_parsed_result(self, image: np.ndarray, debugging: bool = False):
         hands_result, body_result, image = self.process(image, debugging=debugging)
@@ -125,12 +112,18 @@ class PoseHandler:
         parsed_hands = self.hand_handler.parse(hands)
         parsed_body = self.body_handler.parse(body)
 
-        left_hand, right_hand = self.hands_selector.parse(parsed_hands)
-
-        left_hand = self.hands_adjustment.parse(left_hand)
-        right_hand = self.hands_adjustment.parse(right_hand)
-
-        parsed_body.set_left_hand(left_hand)
-        parsed_body.set_right_hand(right_hand)
+        self.hands_selector.parse(parsed_hands, parsed_body)
+        self.hands_adjustment.parse(parsed_body)
 
         return parsed_body
+
+    @staticmethod
+    def _calculate_desired_adjustment_factor(parsed_body: BodyResultWrapper):
+        ref1 = parsed_body.data[HandPositionConfig.left_shoulder_ref]
+        ref2 = parsed_body.data[HandPositionConfig.right_shoulder_ref]
+
+        distance = np.sqrt(np.sum((ref1 - ref2) ** 2))
+        return distance * HandPositionConfig.desired_scale_factor
+
+
+########################################################################################################################
