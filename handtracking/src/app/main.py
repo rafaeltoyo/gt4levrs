@@ -6,13 +6,16 @@ from handtracking.src.app.threads import HandTrackingWorker, ServerWorker
 
 queue = Queue(maxsize=1)
 
-# Hand Tracking Thread
-process = HandTrackingWorker(cv2.VideoCapture(0), queue, show_image=True)
-process.start()
-
-# Server Thread
+process = HandTrackingWorker(cap=cv2.VideoCapture(0), queue=queue, show_image=True, save_video=False)
 server = ServerWorker(queue)
-server.start()
 
-process.join(2)
-server.join(2)
+try:
+    # Hand Tracking Thread
+    process.start()
+
+    # Server Thread
+    server.start()
+
+finally:
+    server.join(2)
+    process.join(2)

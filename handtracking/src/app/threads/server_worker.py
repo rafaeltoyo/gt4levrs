@@ -80,6 +80,7 @@ class ServerWorker(Thread):
             if message == self._handshake:
                 try:
                     data = self.queue.get_nowait()
+                    print("Sending data " + str(data))
                     self.conn.send_json(data)
                 except Empty:
                     self.conn.send_json({})

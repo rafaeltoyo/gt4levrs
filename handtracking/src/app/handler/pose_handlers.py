@@ -94,6 +94,11 @@ class PoseHandler:
             desired_scale_factor=desired_scale_factor,
             field_of_view=field_of_view)
 
+    def get_parsed_result(self, image: np.ndarray, debugging: bool = False):
+        hands_result, body_result, image = self.process(image, debugging=debugging)
+        parsed_result = self.parse(hands_result, body_result)
+        return parsed_result, image
+
     def process(self, image: np.ndarray, debugging: bool = False):
         # Flip the image horizontally for a later selfie-view display, and convert the BGR image to RGB.
         image = cv2.cvtColor(cv2.flip(image, 1), cv2.COLOR_BGR2RGB)
@@ -104,7 +109,7 @@ class PoseHandler:
         # Process
         hands = self.hand_handler.process(image)
 
-        if self.frame_count % 10 == 0:
+        if self.frame_count % 5 == 0:
             self.body_buffer_result = self.body_handler.process(image)
 
         if debugging:
@@ -129,5 +134,3 @@ class PoseHandler:
         parsed_body.set_right_hand(right_hand)
 
         return parsed_body
-
-########################################################################################################################
