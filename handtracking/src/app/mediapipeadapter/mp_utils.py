@@ -1,4 +1,4 @@
-from app.handler.wrapper import IndexMapper
+from handtracking.src.app.handler.wrapper import IndexMapper
 
 
 class MediaPipeHandIndexMapper(IndexMapper):

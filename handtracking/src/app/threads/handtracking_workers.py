@@ -6,8 +6,9 @@ from threading import Thread
 
 import cv2
 
-from app.handler import PoseHandler
-from app.mediapipeadapter import MediaPipeHandPoseHandler, MediaPipeBodyPoseHandler
+from handtracking.src.app.handler import PoseHandler
+from handtracking.src.app.handler.holistic_handler import HolisticHandler
+from handtracking.src.app.mediapipeadapter import MediaPipeHandPoseHandler, MediaPipeBodyPoseHandler
 
 
 class HandTrackingWorker(Thread):
@@ -31,6 +32,13 @@ class HandTrackingWorker(Thread):
         :param debug_video: Active debugging mode. This worker going to show each frame read.
         :param record_video: Active recording mode. This worker going capture and save each frame. Only available when debug mode is on.
         """
+        if record_video:
+            self.load_video_writer()
+        self.cap = cap
+        self.handler = PoseHandler(MediaPipeHandPoseHandler(), MediaPipeBodyPoseHandler())
+        # self.handler = HolisticHandler()
+
+        self.queue = queue
         super().__init__(
             target=self._behaviour,
             args=[debug_console,
@@ -39,7 +47,7 @@ class HandTrackingWorker(Thread):
             name="Server worker")
         self.cap = cap
         self.queue = queue
-        self.handler = PoseHandler(MediaPipeHandPoseHandler(), MediaPipeBodyPoseHandler())
+
         self.video_writer_in = None
         self.video_writer_out = None
         if record_video:
@@ -66,30 +74,26 @@ class HandTrackingWorker(Thread):
                     continue
 
                 # Process hand and body pose estimation
-                hands, body, debug_image = self.handler.process(input_frame, debugging=(debugging or recording))
+                parsed_result, debug_image = self.handler.get_parsed_result(input_frame, debugging=debugging)
 
                 # Flip and convert input frame colors
                 debug_image = cv2.cvtColor(cv2.flip(debug_image, 1), cv2.COLOR_RGB2BGR)
 
-                if debugging or recording:
-                    if debugging:
-                        cv2.imshow("Debugging results!", debug_image)
-                    if recording:
-                        self.video_writer_out.write(debug_image)
-                        self.video_writer_in.write(input_frame)
-                    key = cv2.waitKey(1)
+                key = cv2.waitKey(1)
+                if debugging:
+                    cv2.imshow("Debugging results!", debug_image)
+                if recording:
+                    self.video_writer_out.write(debug_image)
+                    self.video_writer_in.write(input_frame)
                     if key == ord("q"):
                         sys.exit()
-
-                # Parse results from MediaPipe
-                parsed = self.handler.parse(hands, body)
 
                 try:
                     self.queue.get_nowait()
                 except Empty:
                     pass
                 finally:
-                    payload = parsed.json()
+                    payload = parsed_result.json()
                     self.queue.put_nowait(payload)
                     if console:
                         fps_message = str(round(1 / (time.time() - start_time), 2)) + " fps"
