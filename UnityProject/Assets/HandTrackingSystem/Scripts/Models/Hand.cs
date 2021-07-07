@@ -18,7 +18,8 @@ namespace HandTracking.Models
         /// <param name="middle">Middle finger</param>
         /// <param name="ring">Ring finger</param>
         /// <param name="pinky">Pinky finger</param>
-        public Hand(HandJoint wrist, HandFinger thumb, HandFinger index, HandFinger middle, HandFinger ring, HandFinger pinky)
+        /// <param name="isLeft">is left hand</param>
+        public Hand(HandJoint wrist, HandFinger thumb, HandFinger index, HandFinger middle, HandFinger ring, HandFinger pinky, bool isLeft)
         {
             Wrist = wrist;
             Thumb = thumb;
@@ -26,6 +27,7 @@ namespace HandTracking.Models
             Middle = middle;
             Ring = ring;
             Pinky = pinky;
+            IsLeft = isLeft;
         }
 
         public void SetWristPosition(Vector3 wrist)
@@ -129,6 +131,8 @@ namespace HandTracking.Models
 
         public HandFinger Pinky { get; }
 
+        public bool IsLeft { get; }
+
         public override string ToString()
         {
             return string.Format("[ {0}, {1}, {2}, {3}, {4} ]",
@@ -137,6 +141,87 @@ namespace HandTracking.Models
                  Middle.ToString(),
                  Ring.ToString(),
                  Pinky.ToString());
+        }
+
+        public Vector3 GetForwardDirection() {
+            return (this.Middle.Joint0.Coordenates - this.Wrist.Coordenates).normalized;
+        }
+
+        public Vector3 GetUpwardDirection() {
+            if (IsLeft)
+            {
+                Plane plane1 = new Plane(
+                    Vector3.zero,
+                    this.Pinky.Joint0.Coordenates - this.Wrist.Coordenates,
+                    this.Middle.Joint0.Coordenates - this.Wrist.Coordenates
+                );
+                Plane plane2 = new Plane(
+                    Vector3.zero,
+                    this.Ring.Joint0.Coordenates - this.Wrist.Coordenates,
+                    this.Index.Joint0.Coordenates - this.Wrist.Coordenates
+                );
+                return ((plane1.normal + plane2.normal)/2).normalized;
+            }
+            else
+            {
+                Plane plane1 = new Plane(
+                    Vector3.zero,
+                    this.Middle.Joint0.Coordenates - this.Wrist.Coordenates,
+                    this.Pinky.Joint0.Coordenates - this.Wrist.Coordenates
+                );
+                Plane plane2 = new Plane(
+                    Vector3.zero,
+                    this.Index.Joint0.Coordenates - this.Wrist.Coordenates,
+                    this.Ring.Joint0.Coordenates - this.Wrist.Coordenates
+                );
+                return ((plane1.normal + plane2.normal)/2).normalized;
+            }
+        }
+
+        public Quaternion GetRotation() {
+            return Quaternion.LookRotation(
+                this.GetForwardDirection(),
+                this.GetUpwardDirection());
+        }
+
+        public void DebugLines() {
+            Debug.DrawLine(this.Wrist.Coordenates, this.Index.Joint0.Coordenates);
+            Debug.DrawLine(this.Index.Joint0.Coordenates, this.Index.Joint1.Coordenates);
+            Debug.DrawLine(this.Index.Joint1.Coordenates, this.Index.Joint2.Coordenates);
+            Debug.DrawLine(this.Index.Joint2.Coordenates, this.Index.Tip.Coordenates);
+
+            Debug.DrawLine(this.Wrist.Coordenates, this.Middle.Joint0.Coordenates);
+            Debug.DrawLine(this.Middle.Joint0.Coordenates, this.Middle.Joint1.Coordenates);
+            Debug.DrawLine(this.Middle.Joint1.Coordenates, this.Middle.Joint2.Coordenates);
+            Debug.DrawLine(this.Middle.Joint2.Coordenates, this.Middle.Tip.Coordenates);
+
+            Debug.DrawLine(this.Wrist.Coordenates, this.Ring.Joint0.Coordenates);
+            Debug.DrawLine(this.Ring.Joint0.Coordenates, this.Ring.Joint1.Coordenates);
+            Debug.DrawLine(this.Ring.Joint1.Coordenates, this.Ring.Joint2.Coordenates);
+            Debug.DrawLine(this.Ring.Joint2.Coordenates, this.Ring.Tip.Coordenates);
+
+            Debug.DrawLine(this.Wrist.Coordenates, this.Pinky.Joint0.Coordenates);
+            Debug.DrawLine(this.Pinky.Joint0.Coordenates, this.Pinky.Joint1.Coordenates);
+            Debug.DrawLine(this.Pinky.Joint1.Coordenates, this.Pinky.Joint2.Coordenates);
+            Debug.DrawLine(this.Pinky.Joint2.Coordenates, this.Pinky.Tip.Coordenates);
+
+            Debug.DrawLine(this.Wrist.Coordenates, this.Thumb.Joint0.Coordenates);
+            Debug.DrawLine(this.Thumb.Joint0.Coordenates, this.Thumb.Joint1.Coordenates);
+            Debug.DrawLine(this.Thumb.Joint1.Coordenates, this.Thumb.Joint2.Coordenates);
+            Debug.DrawLine(this.Thumb.Joint2.Coordenates, this.Thumb.Tip.Coordenates);
+
+            Debug.DrawLine(this.Thumb.Joint0.Coordenates, this.Index.Joint0.Coordenates);
+            Debug.DrawLine(this.Index.Joint0.Coordenates, this.Middle.Joint0.Coordenates);
+            Debug.DrawLine(this.Middle.Joint0.Coordenates, this.Ring.Joint0.Coordenates);
+            Debug.DrawLine(this.Ring.Joint0.Coordenates, this.Pinky.Joint0.Coordenates);
+
+            // Upwards direction
+            Vector3 forward = this.GetForwardDirection();
+            Vector3 upward = this.GetUpwardDirection();
+
+            // Debug hand
+            Debug.DrawLine(this.Wrist.Coordenates, this.Wrist.Coordenates + forward, Color.blue);
+            Debug.DrawLine(this.Wrist.Coordenates, this.Wrist.Coordenates + upward, Color.red);
         }
     }
 }
