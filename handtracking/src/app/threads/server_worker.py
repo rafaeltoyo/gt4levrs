@@ -1,19 +1,11 @@
-from threading import Thread
+import multiprocessing
 from queue import Queue, Empty
-
 import zmq
-
 from ..config import ServerConfig as Config
 
 
 class ServerConnection:
     _socket: zmq.Socket = None
-
-    def __init__(self):
-        """
-        Server connection handler
-        """
-        pass
 
     def setup(self, address: str):
         context = zmq.Context()
@@ -31,7 +23,7 @@ class ServerConnection:
         self._socket.send_json(json)
 
 
-class ServerWorker(Thread):
+class ServerWorker(multiprocessing.Process):
 
     def __init__(self,
                  queue: Queue,
@@ -60,23 +52,13 @@ class ServerWorker(Thread):
         self.queue: Queue = queue
         self._address = "{}://{}:{}".format(protocol, address, port)
         self._handshake = handshake
+        multiprocessing.Process.__init__(self)
 
-        super().__init__(
-            target=self._behaviour,
-            name="Server worker",
-            daemon=True)
-
-    def _behaviour(self):
-        """
-        Worker behaviour.
-        This function gonna be the Thread target
-        """
+    def run(self):
         self.conn.setup(self._address)
 
         while self.is_alive():
-
             message = self.conn.read_string()
-
             if message == self._handshake:
                 try:
                     data = self.queue.get_nowait()
@@ -86,7 +68,6 @@ class ServerWorker(Thread):
                     self.conn.send_json({})
                 except Exception as ex:
                     self.conn.send_json(ex)
-
             else:
                 pass
 
