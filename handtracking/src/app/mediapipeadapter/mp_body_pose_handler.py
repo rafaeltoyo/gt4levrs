@@ -1,3 +1,6 @@
+import logging
+from abc import ABC, abstractmethod
+
 import numpy as np
 import mediapipe as mp
 
@@ -6,8 +9,30 @@ from mediapipe.python.solutions.pose import Pose, PoseLandmark
 
 from ..config import MediaPipePoseConfig
 from .mp_utils import MediaPipePoseIndexMapper
-from ..handler.pose_handlers import BodyPoseHandler
 from ..handler.wrapper import BodyResultWrapper
+from ..utils.logging_manager import LoggingManager
+
+
+class BodyPoseHandler(ABC):
+    """
+    This class must process a frame and parse the result into a body representation.
+    """
+
+    @abstractmethod
+    def process(self, image: np.ndarray) -> any:
+        pass
+
+    @abstractmethod
+    def parse(self, body: any) -> Optional[BodyResultWrapper]:
+        pass
+
+    @abstractmethod
+    def close(self):
+        pass
+
+    @abstractmethod
+    def debug(self, image: np.ndarray, body: any):
+        pass
 
 
 class MediaPipeBodyPoseHandler(BodyPoseHandler):
@@ -21,7 +46,7 @@ class MediaPipeBodyPoseHandler(BodyPoseHandler):
                  smooth_landmarks: bool = MediaPipePoseConfig.smooth_landmarks,
                  min_detection_confidence: float = MediaPipePoseConfig.min_detection_confidence,
                  min_tracking_confidence: float = MediaPipePoseConfig.min_tracking_confidence):
-        super().__init__()
+        self.logger = LoggingManager.get_logger("HandtrackingWorkers", logging_level=logging.INFO)
 
         self._solution = Pose(
             static_image_mode=static_image_mode,
@@ -29,38 +54,13 @@ class MediaPipeBodyPoseHandler(BodyPoseHandler):
             smooth_landmarks=smooth_landmarks,
             min_detection_confidence=min_detection_confidence,
             min_tracking_confidence=min_tracking_confidence)
+        super().__init__()
 
     def process(self, frame: np.ndarray):
-        """
-        Process a frame that contains a person and return the positions of his body joints
-
-        Parameters
-        ----------
-        frame Frame from Video Capture
-
-        Returns
-        -------
-        Protobuf from MediaPipe with body joints position
-        """
-
-        # To improve performance, optionally mark the image as not writeable to pass by reference.
         frame.flags.writeable = False
-
         return self._solution.process(frame)
 
     def parse(self, body) -> Optional[BodyResultWrapper]:
-        """
-        This method translate the result from MediaPipe to a body wrapper.
-
-        Parameters
-        ----------
-        body Data from MediaPipe Pose process.
-
-        Returns
-        -------
-        Pose detected by MediaPipe.
-        """
-
         if body is None or body.pose_landmarks is None:
             return BodyResultWrapper(size=0)
 
@@ -79,18 +79,11 @@ class MediaPipeBodyPoseHandler(BodyPoseHandler):
         return wrapper
 
     def close(self):
-        """
-        Close all resources
-        """
         self._solution.close()
 
     def debug(self, image: np.ndarray, results: any):
-        """
-        Debug method
-        """
         if results and results.pose_landmarks:
-            mp_drawing = mp.solutions.drawing_utils
-            mp_pose = mp.solutions.pose
-
-            mp_drawing.draw_landmarks(image, results.pose_landmarks, mp_pose.POSE_CONNECTIONS)
+            mediapipe_drawing = mp.solutions.drawing_utils
+            mediapipe_pose = mp.solutions.pose
+            mediapipe_drawing.draw_landmarks(image, results.pose_landmarks, mediapipe_pose.POSE_CONNECTIONS)
         return image

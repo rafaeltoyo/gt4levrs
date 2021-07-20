@@ -11,3 +11,4 @@ pillow
 matplotlib
 mediapipe
 pyzmq
+multiprocessing-logging==0.3.1
