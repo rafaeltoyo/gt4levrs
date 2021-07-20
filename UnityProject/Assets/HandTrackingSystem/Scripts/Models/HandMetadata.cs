@@ -14,17 +14,17 @@ namespace HandTracking.Models
             { HandBoneIndex.THUMB_MIDDLE, new HandBone(HandJointIndex.THUMB_MCP, HandJointIndex.THUMB_IP) },
             { HandBoneIndex.THUMB_DISTAL, new HandBone(HandJointIndex.THUMB_IP, HandJointIndex.THUMB_TIP) },
 
-            { HandBoneIndex.INDEX_METACARPAL, new HandBone(HandJointIndex.WRIST, HandJointIndex.INDEX_FINGER_MCP) },
+            //{ HandBoneIndex.INDEX_METACARPAL, new HandBone(HandJointIndex.WRIST, HandJointIndex.INDEX_FINGER_MCP) },
             { HandBoneIndex.INDEX_PROXIMAL, new HandBone(HandJointIndex.INDEX_FINGER_MCP, HandJointIndex.INDEX_FINGER_PIP) },
             { HandBoneIndex.INDEX_MIDDLE, new HandBone(HandJointIndex.INDEX_FINGER_PIP, HandJointIndex.INDEX_FINGER_DIP) },
             { HandBoneIndex.INDEX_DISTAL, new HandBone(HandJointIndex.INDEX_FINGER_DIP, HandJointIndex.INDEX_FINGER_TIP) },
 
-            { HandBoneIndex.MIDDLE_METACARPAL, new HandBone(HandJointIndex.WRIST, HandJointIndex.MIDDLE_FINGER_MCP) },
+            //{ HandBoneIndex.MIDDLE_METACARPAL, new HandBone(HandJointIndex.WRIST, HandJointIndex.MIDDLE_FINGER_MCP) },
             { HandBoneIndex.MIDDLE_PROXIMAL, new HandBone(HandJointIndex.MIDDLE_FINGER_MCP, HandJointIndex.MIDDLE_FINGER_PIP) },
             { HandBoneIndex.MIDDLE_MIDDLE, new HandBone(HandJointIndex.MIDDLE_FINGER_PIP, HandJointIndex.MIDDLE_FINGER_DIP) },
             { HandBoneIndex.MIDDLE_DISTAL, new HandBone(HandJointIndex.MIDDLE_FINGER_DIP, HandJointIndex.MIDDLE_FINGER_TIP) },
 
-            { HandBoneIndex.RING_METACARPAL, new HandBone(HandJointIndex.WRIST, HandJointIndex.RING_FINGER_MCP) },
+            //{ HandBoneIndex.RING_METACARPAL, new HandBone(HandJointIndex.WRIST, HandJointIndex.RING_FINGER_MCP) },
             { HandBoneIndex.RING_PROXIMAL, new HandBone(HandJointIndex.RING_FINGER_MCP, HandJointIndex.RING_FINGER_PIP) },
             { HandBoneIndex.RING_MIDDLE, new HandBone(HandJointIndex.RING_FINGER_PIP, HandJointIndex.RING_FINGER_DIP) },
             { HandBoneIndex.RING_DISTAL, new HandBone(HandJointIndex.RING_FINGER_DIP, HandJointIndex.RING_FINGER_TIP) },
