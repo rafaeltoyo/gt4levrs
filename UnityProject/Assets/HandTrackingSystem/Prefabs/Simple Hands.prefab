@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 3242942329917006151}
   - component: {fileID: 3242942329917006150}
   m_Layer: 0
-  m_Name: DummiesHands
+  m_Name: Simple Hands
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

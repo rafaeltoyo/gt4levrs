@@ -13,7 +13,7 @@ namespace HandTracking.Parser.Mediapipe
         private Vector3 reference = new Vector3(0, 0, 0);
         private Vector3 leftWrist = new Vector3(0, 0, 0);
         private Vector3 rightWrist = new Vector3(0, 0, 0);
-        private const int SCALE = 10;
+        private const int SCALE = 5;
 
         /// <summary>
         ///     This method convert the received string into json and parse to Hands object
