@@ -106,7 +106,8 @@ class HandPositionParser:
 
         if self.adjust_size:
             # Hand reference for normalizing
-            pivot: np.ndarray = hand.data[self.palm_joint_ref1_id].copy()
+            #pivot: np.ndarray = hand.data[self.palm_joint_ref1_id].copy()
+            pivot = np.array([0.5, 0.5, 0.5], dtype="float")
 
             # Centralize joints at reference
             hand.data[:] -= pivot

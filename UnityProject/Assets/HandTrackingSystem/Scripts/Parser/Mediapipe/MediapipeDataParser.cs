@@ -13,7 +13,7 @@ namespace HandTracking.Parser.Mediapipe
         private Vector3 reference = new Vector3(0, 0, 0);
         private Vector3 leftWrist = new Vector3(0, 0, 0);
         private Vector3 rightWrist = new Vector3(0, 0, 0);
-        private const int SCALE = 10;
+        private const int SCALE = 5;
 
         /// <summary>
         ///     This method convert the received string into json and parse to Hands object
@@ -98,8 +98,8 @@ namespace HandTracking.Parser.Mediapipe
         /// <returns></returns>
         private HandTrackingData ParseTwoHands(MediapipeTwoHandsJson mpHands)
         {
-            Hand leftHand = ParseHand(mpHands.lhand);
-            Hand rightHand = ParseHand(mpHands.rhand);
+            Hand leftHand = ParseHand(mpHands.lhand, true);
+            Hand rightHand = ParseHand(mpHands.rhand, false);
             /*
             if (leftHand != null)
                 leftHand.SetWristPosition(this.leftWrist);
@@ -115,7 +115,7 @@ namespace HandTracking.Parser.Mediapipe
         /// </summary>
         /// <param name="mpHands">Parsed json</param>
         /// <returns>Parsed Hand</returns>
-        private Hand ParseHand(MediapipeHandJson mpHands)
+        private Hand ParseHand(MediapipeHandJson mpHands, bool isLeft)
         {
             if (mpHands == null || !(mpHands.joints is object))
                 throw new Exception(MediapipeErrors.ERROR_EMPTY_HAND_DATA);
@@ -136,7 +136,8 @@ namespace HandTracking.Parser.Mediapipe
                     ParseFinger(MediapipeFingers.INDEX, joints),
                     ParseFinger(MediapipeFingers.MIDDLE, joints),
                     ParseFinger(MediapipeFingers.RING, joints),
-                    ParseFinger(MediapipeFingers.PINKY, joints)
+                    ParseFinger(MediapipeFingers.PINKY, joints),
+                    isLeft
                 );
             }
             else
