@@ -1,4 +1,5 @@
 import multiprocessing
+import threading
 from queue import Queue, Empty
 import zmq
 from ..config import ServerConfig as Config
@@ -23,7 +24,7 @@ class ServerConnection:
         self._socket.send_json(json)
 
 
-class ServerWorker(multiprocessing.Process):
+class ServerWorker(threading.Thread):
 
     def __init__(self,
                  queue: Queue,
@@ -48,11 +49,11 @@ class ServerWorker(multiprocessing.Process):
         handshake
             Handshake string.
         """
+        threading.Thread.__init__(self)
         self.conn: ServerConnection = ServerConnection()
         self.queue: Queue = queue
         self._address = "{}://{}:{}".format(protocol, address, port)
         self._handshake = handshake
-        multiprocessing.Process.__init__(self)
 
     def run(self):
         self.conn.setup(self._address)

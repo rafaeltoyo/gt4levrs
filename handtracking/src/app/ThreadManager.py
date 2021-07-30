@@ -10,10 +10,10 @@ from multiprocessing import Manager
 from handtracking.src.app.utils.logging_manager import LoggingManager
 
 
-class ProcessManager:
+class ThreadManager:
     def __init__(self):
         self.result_queue = Manager().Queue(maxsize=1)
-        self.logger = LoggingManager.get_logger("ProcessManager", logging_level=logging.INFO)
+        self.logger = LoggingManager.get_logger("ThreadManager", logging_level=logging.INFO)
 
         self.logger.info("Loaded camera")
         # Hand Tracking Thread

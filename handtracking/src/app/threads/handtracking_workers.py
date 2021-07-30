@@ -2,18 +2,18 @@ import logging
 import multiprocessing
 import os
 import sys
+import threading
 import time
 from queue import Queue, Empty
 
 import cv2
 
 from handtracking.src.app.handler import PoseHandler
-from handtracking.src.app.handler.holistic_handler import HolisticHandler
 from handtracking.src.app.mediapipeadapter import MediaPipeHandPoseHandler, MediaPipeBodyPoseHandler
 from handtracking.src.app.utils.logging_manager import LoggingManager
 
 
-class HandTrackingWorker(multiprocessing.Process):
+class HandTrackingWorker(threading.Thread):
     """
     A class that represents a hand-tracking worker.
     This class receive a video capture and uses that for read frames.
@@ -33,6 +33,7 @@ class HandTrackingWorker(multiprocessing.Process):
         :param debug_video: Active debugging mode. This worker going to show each frame read.
         :param record_video: Active recording mode. This worker going capture and save each frame. Only available when debug mode is on.
         """
+        threading.Thread.__init__(self)
         self.logger = LoggingManager.get_logger("HandtrackingWorkers", logging_level=logging.INFO)
         if record_video:
             self.load_video_writer()
@@ -44,7 +45,6 @@ class HandTrackingWorker(multiprocessing.Process):
 
         self.video_writer_in = None
         self.video_writer_out = None
-        multiprocessing.Process.__init__(self)
 
     def load_video_writer(self):
         fourcc = cv2.VideoWriter_fourcc(*'XVID')
@@ -58,7 +58,7 @@ class HandTrackingWorker(multiprocessing.Process):
         if self.record_video:
             self.load_video_writer()
         self.handler = PoseHandler(MediaPipeHandPoseHandler(), MediaPipeBodyPoseHandler())
-        self.cap = cv2.VideoCapture(1)
+        self.cap = cv2.VideoCapture(0)
         self.cap.set(cv2.CAP_PROP_BUFFERSIZE, 1)
 
         self.logger.info("Loaded videocapture")
