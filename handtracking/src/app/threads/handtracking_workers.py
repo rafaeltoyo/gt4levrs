@@ -1,5 +1,4 @@
 import logging
-import multiprocessing
 import os
 import sys
 import threading
@@ -8,9 +7,9 @@ from queue import Queue, Empty
 
 import cv2
 
-from handtracking.src.app.handler import PoseHandler
-from handtracking.src.app.mediapipeadapter import MediaPipeHandPoseHandler, MediaPipeBodyPoseHandler
-from handtracking.src.app.utils.logging_manager import LoggingManager
+from ..handler import PoseHandler
+from ..mediapipeadapter import MediaPipeHandPoseHandler, MediaPipeBodyPoseHandler
+from ..utils.logging_manager import LoggingManager
 
 
 class HandTrackingWorker(threading.Thread):

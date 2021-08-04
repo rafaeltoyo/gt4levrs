@@ -2,8 +2,8 @@ import math
 
 import numpy as np
 
-from .wrapper import BodyResultWrapper, HandResultWrapper
 from ..config import HandPositionConfig
+from .wrapper import BodyResultWrapper, HandResultWrapper
 
 
 class HandPositionParser:

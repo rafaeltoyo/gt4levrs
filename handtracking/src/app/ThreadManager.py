@@ -2,12 +2,11 @@ import logging
 import multiprocessing
 import time
 import cv2
-
-from handtracking.src.app.config import DebugOption
-from handtracking.src.app.threads import HandTrackingWorker, ServerWorker
 from multiprocessing import Manager
 
-from handtracking.src.app.utils.logging_manager import LoggingManager
+from .config import DebugOption
+from .threads import HandTrackingWorker, ServerWorker
+from .utils.logging_manager import LoggingManager
 
 
 class ThreadManager:

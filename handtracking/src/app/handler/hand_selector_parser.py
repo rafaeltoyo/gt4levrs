@@ -1,6 +1,6 @@
 from typing import List, Optional
 
-from handtracking.src.app.handler.wrapper import HandResultWrapper, BodyResultWrapper
+from ..handler.wrapper import HandResultWrapper, BodyResultWrapper
 
 
 class HandSelectorParser:

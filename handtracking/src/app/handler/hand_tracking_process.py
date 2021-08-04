@@ -2,7 +2,8 @@ import logging
 import multiprocessing
 import cv2
 from mediapipe.python.solutions.hands import Hands
-from handtracking.src.app.utils.logging_manager import LoggingManager
+
+from ..utils.logging_manager import LoggingManager
 
 
 class HandTrackingProcess(multiprocessing.Process):

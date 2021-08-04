@@ -2,7 +2,8 @@ import logging
 import sys
 import multiprocessing_logging
 from logging.handlers import TimedRotatingFileHandler
-from handtracking.src.app.file_utils import get_absolute_path
+
+from ..file_utils import get_absolute_path
 
 FORMATTER = logging.Formatter("%(asctime)s — %(name)s — %(levelname)s — %(message)s")
 LOG_DIRECTORY = get_absolute_path("src/logs/")
