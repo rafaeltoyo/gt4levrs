@@ -1,9 +1,9 @@
 import logging
-import multiprocessing
 import os
 import sys
 import threading
 import time
+from asyncio import QueueEmpty
 from queue import Queue, Empty
 
 import cv2
@@ -90,7 +90,7 @@ class HandTrackingWorker(threading.Thread):
                 self.logger.debug("Adding result to queue")
                 try:
                     self.queue.get_nowait()
-                except Empty:
+                except QueueEmpty:
                     pass
                 finally:
                     payload = parsed_result.json()

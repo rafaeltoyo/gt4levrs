@@ -1,4 +1,3 @@
-import multiprocessing
 import threading
 from queue import Queue, Empty
 import zmq
