@@ -3,6 +3,7 @@ import os
 import sys
 import threading
 import time
+import numpy as np
 from asyncio import QueueEmpty
 from queue import Queue, Empty
 
@@ -49,16 +50,33 @@ class HandTrackingWorker(threading.Thread):
     def load_video_writer(self):
         fourcc = cv2.VideoWriter_fourcc(*'XVID')
         video_index = len(os.listdir("results")) // 2
-        self.video_writer_in = cv2.VideoWriter("results/video_input" + str(video_index) + ".mp4",
-                                               fourcc, 10, (640, 480), True)
-        self.video_writer_out = cv2.VideoWriter("results/video_output" + str(video_index) + ".mp4",
-                                                fourcc, 10, (640, 480), True)
+
+        # My Webcam
+        #video_size = (640, 480)
+        video_size = (1920, 1080)
+
+        video_input_name = "results/video_input_{}.mp4".format(video_index)
+        self.video_writer_in = cv2.VideoWriter(video_input_name, fourcc, 10, video_size, True)
+
+        video_output_name = "results/video_output_{}.mp4".format(video_index)
+        self.video_writer_out = cv2.VideoWriter(video_output_name, fourcc, 10, video_size, True)
 
     def run(self):
         if self.record_video:
             self.load_video_writer()
+
         self.handler = PoseHandler(MediaPipeHandPoseHandler(), MediaPipeBodyPoseHandler())
-        self.cap = cv2.VideoCapture(0)
+
+        self.cap = cv2.VideoCapture("D:\\Workspace\\tcc\\Recording\\tests\\medium\\pray\\original.mp4")
+        #self.cap = cv2.VideoCapture(0)
+
+        cv2.imshow("Debugging results!", np.ndarray([]))
+
+        while True:
+            key = cv2.waitKey(100)
+            if key == ord("q"):
+                break
+
         self.cap.set(cv2.CAP_PROP_BUFFERSIZE, 1)
 
         self.logger.info("Loaded videocapture")
@@ -67,7 +85,11 @@ class HandTrackingWorker(threading.Thread):
                 start_time = time.time()
                 # Get a new frame from webcam
                 success, input_frame = self.cap.read()
+
                 if not success:
+                    key = cv2.waitKey(100)
+                    if key == ord("q"):
+                        break
                     continue
 
                 self.logger.debug("Processing frame")
@@ -85,7 +107,7 @@ class HandTrackingWorker(threading.Thread):
                     self.video_writer_out.write(debug_image)
                     self.video_writer_in.write(input_frame)
                     if key == ord("q"):
-                        sys.exit()
+                        break
 
                 self.logger.debug("Adding result to queue")
                 try:
@@ -106,3 +128,5 @@ class HandTrackingWorker(threading.Thread):
             if self.video_writer_out is not None:
                 self.video_writer_out.release()
             self.logger.info("Stopping HandTracking Worker!")
+
+        sys.exit(0)

@@ -3,6 +3,9 @@ from queue import Queue, Empty
 import zmq
 from ..config import ServerConfig as Config
 
+import logging
+from ..utils.logging_manager import LoggingManager
+
 
 class ServerConnection:
     _socket: zmq.Socket = None
@@ -54,21 +57,25 @@ class ServerWorker(threading.Thread):
         self._address = "{}://{}:{}".format(protocol, address, port)
         self._handshake = handshake
 
+        self.logger = LoggingManager.get_logger("HandtrackingWorkers", logging_level=logging.INFO)
+
     def run(self):
         self.conn.setup(self._address)
+
+        self.logger.info("Starting Server Worker!")
 
         while self.is_alive():
             message = self.conn.read_string()
             if message == self._handshake:
                 try:
                     data = self.queue.get_nowait()
-                    print("Sending data " + str(data))
+                    self.logger.debug("Sending %s!", str(data))
                     self.conn.send_json(data)
                 except Empty:
                     self.conn.send_json({})
                 except Exception as ex:
-                    self.conn.send_json(ex)
+                    self.conn.send_json({'error': str(ex)})
             else:
                 pass
 
-        print("Stopping Server Worker!")
+        self.logger.info("Stopping Server Worker!")

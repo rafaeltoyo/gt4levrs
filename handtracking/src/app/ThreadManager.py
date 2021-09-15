@@ -1,5 +1,3 @@
-import logging
-
 from asyncio import Queue
 
 from .config import DebugOption
@@ -10,7 +8,7 @@ from .utils.logging_manager import LoggingManager
 class ThreadManager:
     def __init__(self):
         self.result_queue = Queue(maxsize=1)
-        self.logger = LoggingManager.get_logger("ThreadManager", logging_level=logging.INFO)
+        self.logger = LoggingManager.get_logger("ThreadManager")
 
         self.logger.info("Loaded camera")
         # Hand Tracking Thread
