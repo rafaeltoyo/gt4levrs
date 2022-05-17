@@ -4,9 +4,9 @@ from mediapipe.python.solutions.pose import PoseLandmark
 
 
 class DebugOption:
-    debug_video = True
-    record_video = True
-    debug_console = True
+    debug_video = False
+    record_video = False
+    debug_console = False
 
 
 class ServerConfig:

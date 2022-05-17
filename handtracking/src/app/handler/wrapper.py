@@ -150,11 +150,12 @@ class BodyResultWrapper(ResultWrapper):
         self.left_hand: HandResultWrapper = None
         self.right_hand: HandResultWrapper = None
 
-    def json(self):
+    def json(self, **kwargs):
         json = {}
         if self.left_hand or self.right_hand:
             json['hand_results'] = self._hands_json()
         json['body_results'] = super().json()
+        json.update(kwargs)
         return json
 
     def _hands_json(self):

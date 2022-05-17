@@ -3,6 +3,7 @@ import os
 import sys
 import threading
 import time
+import uuid
 import numpy as np
 from asyncio import QueueEmpty
 from queue import Queue, Empty
@@ -12,6 +13,36 @@ import cv2
 from ..handler import PoseHandler
 from ..mediapipeadapter import MediaPipeHandPoseHandler, MediaPipeBodyPoseHandler
 from ..utils.logging_manager import LoggingManager
+
+
+class Metrics:
+    def __init__(self):
+        self.uuid = None
+        self.marks = {}
+        self._start = 0
+        self._new = 0
+        self._old = 0
+
+    def _time(self):
+        return time.time() * 1000
+
+    def start(self):
+        self.uuid = uuid.uuid4()
+        self.marks = {}
+
+        self._start = self._new = self._time()
+        self.marks["trace_id"] = str(self.uuid)
+        self.marks["start_time"] = self._start
+
+    def update(self, mark):
+        self._old = self._new
+        self._new = self._time()
+        self.marks[mark] = self._new - self._old
+
+    def end(self):
+        end = self._time()
+        self.marks["end_time"] = end
+        self.marks["duration"] = end - self._start
 
 
 class HandTrackingWorker(threading.Thread):
@@ -52,8 +83,8 @@ class HandTrackingWorker(threading.Thread):
         video_index = len(os.listdir("results")) // 2
 
         # My Webcam
-        #video_size = (640, 480)
-        video_size = (1920, 1080)
+        video_size = (640, 480)
+        #video_size = (1920, 1080)
 
         video_input_name = "results/video_input_{}.mp4".format(video_index)
         self.video_writer_in = cv2.VideoWriter(video_input_name, fourcc, 10, video_size, True)
@@ -67,8 +98,8 @@ class HandTrackingWorker(threading.Thread):
 
         self.handler = PoseHandler(MediaPipeHandPoseHandler(), MediaPipeBodyPoseHandler())
 
-        self.cap = cv2.VideoCapture("D:\\Workspace\\tcc\\Recording\\tests\\medium\\pray\\original.mp4")
-        #self.cap = cv2.VideoCapture(0)
+        #self.cap = cv2.VideoCapture("D:\\Workspace\\tcc\\Recording\\tests\\medium\\pray\\original.mp4")
+        self.cap = cv2.VideoCapture(0)
 
         cv2.imshow("Debugging results!", np.ndarray([]))
 
@@ -80,34 +111,39 @@ class HandTrackingWorker(threading.Thread):
         self.cap.set(cv2.CAP_PROP_BUFFERSIZE, 1)
 
         self.logger.info("Loaded videocapture")
+
+        metrics = Metrics()
+
         try:
             while self.cap.isOpened() and self.is_alive():
+
+                metrics.start()
                 start_time = time.time()
+
                 # Get a new frame from webcam
                 success, input_frame = self.cap.read()
 
+                metrics.update("capture")
+
                 if not success:
-                    key = cv2.waitKey(100)
-                    if key == ord("q"):
-                        break
                     continue
 
                 self.logger.debug("Processing frame")
                 # Process hand and body pose estimation
                 parsed_result, debug_image = self.handler.get_parsed_result(input_frame, debugging=self.debug_video)
 
-                # Flip and convert input frame colors
-                debug_image = cv2.cvtColor(cv2.flip(debug_image, 1), cv2.COLOR_RGB2BGR)
-                self.logger.debug("Converting debug image")
+                metrics.update('mediapipe')
 
-                key = cv2.waitKey(1)
-                if self.debug_video:
-                    cv2.imshow("Debugging results!", debug_image)
-                if self.record_video:
-                    self.video_writer_out.write(debug_image)
-                    self.video_writer_in.write(input_frame)
-                    if key == ord("q"):
-                        break
+                if self.debug_video or self.record_video:
+                    # Flip and convert input frame colors
+                    debug_image = cv2.cvtColor(cv2.flip(debug_image, 1), cv2.COLOR_RGB2BGR)
+                    self.logger.debug("Converting debug image")
+
+                    if self.debug_video:
+                        cv2.imshow("Debugging results!", debug_image)
+                    if self.record_video:
+                        self.video_writer_out.write(debug_image)
+                        self.video_writer_in.write(input_frame)
 
                 self.logger.debug("Adding result to queue")
                 try:
@@ -115,11 +151,18 @@ class HandTrackingWorker(threading.Thread):
                 except QueueEmpty:
                     pass
                 finally:
-                    payload = parsed_result.json()
+                    metrics.update('sending')
+                    payload = parsed_result.json(metrics=metrics.marks)
                     self.queue.put_nowait(payload)
+                    metrics.end()
                     if self.debug_console:
                         fps_message = str(round(1 / (time.time() - start_time), 2)) + " fps"
                         self.logger.info(str(fps_message) + str(payload))
+
+                key = cv2.waitKey(1)
+                if key == ord("q"):
+                    break
+
         finally:
             if self.cap is not None:
                 self.cap.release()

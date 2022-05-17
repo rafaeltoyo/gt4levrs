@@ -1,6 +1,9 @@
+import time
 import threading
 from queue import Queue, Empty
 import zmq
+from zmq import ZMQError
+
 from ..config import ServerConfig as Config
 
 import logging
@@ -17,7 +20,10 @@ class ServerConnection:
         self._socket = socket
 
     def read_string(self) -> str:
-        return self._socket.recv_string()
+        try:
+            return self._socket.recv_string()
+        except Exception as ex:
+            return self._socket.recv()
 
     def send_string(self, message: str):
         self._socket.send_string(message)
@@ -65,11 +71,17 @@ class ServerWorker(threading.Thread):
         self.logger.info("Starting Server Worker!")
 
         while self.is_alive():
-            message = self.conn.read_string()
+            try:
+                message = self.conn.read_string()
+            except Exception as ex:
+                self.logger.error(ex)
+                continue
+
             if message == self._handshake:
                 try:
                     data = self.queue.get_nowait()
-                    self.logger.debug("Sending %s!", str(data))
+                    data["metrics"]["server"] = time.time() * 1000
+                    self.logger.info("Sending %s!", str(data))
                     self.conn.send_json(data)
                 except Empty:
                     self.conn.send_json({})

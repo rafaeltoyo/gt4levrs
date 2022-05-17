@@ -38,7 +38,7 @@ class PoseHandler:
         image.flags.writeable = False
         hands = self.hand_handler.process(image)
 
-        if self.frame_count % 5:
+        if self.frame_count == 0:
             self.body_buffer_result = self.body_handler.process(image)
 
         if debugging:
@@ -46,7 +46,7 @@ class PoseHandler:
             image = self.hand_handler.debug(image, hands)
             image = self.body_handler.debug(image, self.body_buffer_result)
 
-        self.frame_count += 1
+        self.frame_count = (self.frame_count + 1) % 5
         return hands, self.body_buffer_result, image
 
     def parse(self, hands: any, body: any):
