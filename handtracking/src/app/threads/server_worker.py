@@ -39,7 +39,8 @@ class ServerWorker(threading.Thread):
                  address: str = Config.address,
                  port: int = Config.port,
                  protocol: str = Config.protocol,
-                 handshake: str = Config.handshake):
+                 handshake: str = Config.handshake,
+                 debug_metrics: bool = False):
         """
         Server worker.
         Define and setup the server configuration.
@@ -63,6 +64,8 @@ class ServerWorker(threading.Thread):
         self._address = "{}://{}:{}".format(protocol, address, port)
         self._handshake = handshake
 
+        self.debug_metrics = debug_metrics
+
         self.logger = LoggingManager.get_logger("HandtrackingWorkers", logging_level=logging.INFO)
 
     def run(self):
@@ -80,7 +83,8 @@ class ServerWorker(threading.Thread):
             if message == self._handshake:
                 try:
                     data = self.queue.get_nowait()
-                    data["metrics"]["server"] = time.time() * 1000
+                    if self.debug_metrics:
+                        data["metrics"]["server"] = time.time() * 1000
                     self.logger.info("Sending %s!", str(data))
                     self.conn.send_json(data)
                 except Empty:

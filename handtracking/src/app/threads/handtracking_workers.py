@@ -16,17 +16,21 @@ from ..utils.logging_manager import LoggingManager
 
 
 class Metrics:
-    def __init__(self):
+    def __init__(self, active=False):
         self.uuid = None
         self.marks = {}
         self._start = 0
         self._new = 0
         self._old = 0
+        self.active = active
 
     def _time(self):
         return time.time() * 1000
 
     def start(self):
+        if not self.active:
+            return
+
         self.uuid = uuid.uuid4()
         self.marks = {}
 
@@ -35,11 +39,17 @@ class Metrics:
         self.marks["start_time"] = self._start
 
     def update(self, mark):
+        if not self.active:
+            return
+
         self._old = self._new
         self._new = self._time()
         self.marks[mark] = self._new - self._old
 
     def end(self):
+        if not self.active:
+            return
+
         end = self._time()
         self.marks["end_time"] = end
         self.marks["duration"] = end - self._start
@@ -56,7 +66,9 @@ class HandTrackingWorker(threading.Thread):
                  queue: Queue,
                  debug_console: bool = True,
                  debug_video: bool = False,
-                 record_video: bool = False):
+                 record_video: bool = False,
+                 wait_key_start: bool = False,
+                 debug_metrics: bool = False):
         """
         Create the Worker
 
@@ -74,6 +86,8 @@ class HandTrackingWorker(threading.Thread):
         self.debug_console = debug_console
         self.debug_video = debug_video
         self.record_video = record_video
+        self.wait_key_start = wait_key_start
+        self.debug_metrics = debug_metrics
 
         self.video_writer_in = None
         self.video_writer_out = None
@@ -101,18 +115,19 @@ class HandTrackingWorker(threading.Thread):
         #self.cap = cv2.VideoCapture("D:\\Workspace\\tcc\\Recording\\tests\\medium\\pray\\original.mp4")
         self.cap = cv2.VideoCapture(0)
 
-        cv2.imshow("Debugging results!", np.ndarray([]))
+        if self.wait_key_start:
+            cv2.imshow("Debugging results!", np.ndarray([]))
 
-        while True:
-            key = cv2.waitKey(100)
-            if key == ord("q"):
-                break
+            while True:
+                key = cv2.waitKey(100)
+                if key == ord("q"):
+                    break
 
         self.cap.set(cv2.CAP_PROP_BUFFERSIZE, 1)
 
         self.logger.info("Loaded videocapture")
 
-        metrics = Metrics()
+        metrics = Metrics(active=self.debug_metrics)
 
         try:
             while self.cap.isOpened() and self.is_alive():

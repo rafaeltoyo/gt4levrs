@@ -16,13 +16,15 @@ class ThreadManager:
             self.result_queue,
             debug_console=DebugOption.debug_console,
             debug_video=DebugOption.debug_video,
-            record_video=DebugOption.record_video
+            record_video=DebugOption.record_video,
+            wait_key_start=DebugOption.wait_key_start,
+            debug_metrics=DebugOption.debug_metrics
         )
         mediapipe_process.start()
         self.logger.info("Started handtracking process")
 
         # Server Thread
-        server = ServerWorker(self.result_queue)
+        server = ServerWorker(self.result_queue, debug_metrics=DebugOption.debug_metrics)
         server.start()
         self.logger.info("Started server worker")
 
