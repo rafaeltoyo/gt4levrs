@@ -133,9 +133,6 @@ class BodyResultWrapper(ResultWrapper):
     Wrapper for Body information.
     """
 
-    _left_hand: HandResultWrapper
-    _right_hand: HandResultWrapper
-
     def __init__(self,
                  size: int = 21,
                  index_mapper: IndexMapper = IndexMapper()):
@@ -150,26 +147,21 @@ class BodyResultWrapper(ResultWrapper):
         index_mapper
         """
         super().__init__(size, index_mapper)
-        self._left_hand = None
-        self._right_hand = None
+        self.left_hand: HandResultWrapper = None
+        self.right_hand: HandResultWrapper = None
 
-    def set_left_hand(self, left_hand: HandResultWrapper):
-        self._left_hand = left_hand
-
-    def set_right_hand(self, right_hand: HandResultWrapper):
-        self._right_hand = right_hand
-
-    def json(self):
+    def json(self, **kwargs):
         json = {}
-        if self._left_hand or self._right_hand:
+        if self.left_hand or self.right_hand:
             json['hand_results'] = self._hands_json()
         json['body_results'] = super().json()
+        json.update(kwargs)
         return json
 
     def _hands_json(self):
         return {
-            'lhand': self._left_hand.json() if self._left_hand else None,
-            'rhand': self._right_hand.json() if self._right_hand else None
+            'lhand': self.left_hand.json() if self.left_hand else None,
+            'rhand': self.right_hand.json() if self.right_hand else None
         }
 
 

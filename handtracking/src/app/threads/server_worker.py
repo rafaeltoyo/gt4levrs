@@ -1,19 +1,17 @@
-from threading import Thread
+import time
+import threading
 from queue import Queue, Empty
-
 import zmq
+from zmq import ZMQError
 
 from ..config import ServerConfig as Config
+
+import logging
+from ..utils.logging_manager import LoggingManager
 
 
 class ServerConnection:
     _socket: zmq.Socket = None
-
-    def __init__(self):
-        """
-        Server connection handler
-        """
-        pass
 
     def setup(self, address: str):
         context = zmq.Context()
@@ -22,7 +20,10 @@ class ServerConnection:
         self._socket = socket
 
     def read_string(self) -> str:
-        return self._socket.recv_string()
+        try:
+            return self._socket.recv_string()
+        except Exception as ex:
+            return self._socket.recv()
 
     def send_string(self, message: str):
         self._socket.send_string(message)
@@ -31,14 +32,15 @@ class ServerConnection:
         self._socket.send_json(json)
 
 
-class ServerWorker(Thread):
+class ServerWorker(threading.Thread):
 
     def __init__(self,
                  queue: Queue,
                  address: str = Config.address,
                  port: int = Config.port,
                  protocol: str = Config.protocol,
-                 handshake: str = Config.handshake):
+                 handshake: str = Config.handshake,
+                 debug_metrics: bool = False):
         """
         Server worker.
         Define and setup the server configuration.
@@ -56,37 +58,40 @@ class ServerWorker(Thread):
         handshake
             Handshake string.
         """
+        threading.Thread.__init__(self)
         self.conn: ServerConnection = ServerConnection()
         self.queue: Queue = queue
         self._address = "{}://{}:{}".format(protocol, address, port)
         self._handshake = handshake
 
-        super().__init__(
-            target=self._behaviour,
-            name="Server worker",
-            daemon=True)
+        self.debug_metrics = debug_metrics
 
-    def _behaviour(self):
-        """
-        Worker behaviour.
-        This function gonna be the Thread target
-        """
+        self.logger = LoggingManager.get_logger("HandtrackingWorkers", logging_level=logging.INFO)
+
+    def run(self):
         self.conn.setup(self._address)
 
-        while self.is_alive():
+        self.logger.info("Starting Server Worker!")
 
-            message = self.conn.read_string()
+        while self.is_alive():
+            try:
+                message = self.conn.read_string()
+            except Exception as ex:
+                self.logger.error(ex)
+                continue
 
             if message == self._handshake:
                 try:
                     data = self.queue.get_nowait()
+                    if self.debug_metrics:
+                        data["metrics"]["server"] = time.time() * 1000
+                    self.logger.info("Sending %s!", str(data))
                     self.conn.send_json(data)
                 except Empty:
                     self.conn.send_json({})
                 except Exception as ex:
-                    self.conn.send_json(ex)
-
+                    self.conn.send_json({'error': str(ex)})
             else:
                 pass
 
-        print("Stopping Server Worker!")
+        self.logger.info("Stopping Server Worker!")

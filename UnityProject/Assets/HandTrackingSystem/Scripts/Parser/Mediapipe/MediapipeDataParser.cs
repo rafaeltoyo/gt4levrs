@@ -11,7 +11,9 @@ namespace HandTracking.Parser.Mediapipe
     {
 
         private Vector3 reference = new Vector3(0, 0, 0);
-        private const int SCALE = 10;
+        private Vector3 leftWrist = new Vector3(0, 0, 0);
+        private Vector3 rightWrist = new Vector3(0, 0, 0);
+        private const int SCALE = 5;
 
         /// <summary>
         ///     This method convert the received string into json and parse to Hands object
@@ -55,6 +57,12 @@ namespace HandTracking.Parser.Mediapipe
                 return;
             }
 
+            MediapipeJointJson mpLeftWrist = mpPose[(ushort)MediapipePose.LEFT_WRIST];
+            MediapipeJointJson mpRightWrist = mpPose[(ushort)MediapipePose.RIGHT_WRIST];
+
+            this.leftWrist = this.MediapipeJointToVector3(mpLeftWrist);
+            this.rightWrist = this.MediapipeJointToVector3(mpRightWrist);
+
             MediapipeJointJson mpLeftShoulder = mpPose[(ushort)MediapipePose.LEFT_SHOULDER];
             MediapipeJointJson mpRightShoulder = mpPose[(ushort)MediapipePose.RIGHT_SHOULDER];
 
@@ -67,11 +75,20 @@ namespace HandTracking.Parser.Mediapipe
                 return;
 
             this.reference = Vector3.Lerp(leftShoulder, rightShoulder, 0.5f);
+            this.reference.z = 0f;
         }
 
         private Vector3 MediapipeJointToVector3(MediapipeJointJson json)
         {
             return new Vector3((float)json.x, (float)json.y, (float)json.z);
+        }
+
+        private Vector3 UnityCoordenateAdjustment(Vector3 pos)
+        {
+            pos *= SCALE;
+            pos.x *= -1;
+            pos.y *= -1;
+            return pos;
         }
 
         /// <summary>
@@ -81,7 +98,16 @@ namespace HandTracking.Parser.Mediapipe
         /// <returns></returns>
         private HandTrackingData ParseTwoHands(MediapipeTwoHandsJson mpHands)
         {
-            return new HandTrackingData(ParseHand(mpHands.lhand), ParseHand(mpHands.rhand));
+            Hand leftHand = ParseHand(mpHands.lhand, true);
+            Hand rightHand = ParseHand(mpHands.rhand, false);
+            /*
+            if (leftHand != null)
+                leftHand.SetWristPosition(this.leftWrist);
+
+            if (rightHand != null)
+                rightHand.SetWristPosition(this.rightWrist);
+            */
+            return new HandTrackingData(leftHand, rightHand);
         }
 
         /// <summary>
@@ -89,7 +115,7 @@ namespace HandTracking.Parser.Mediapipe
         /// </summary>
         /// <param name="mpHands">Parsed json</param>
         /// <returns>Parsed Hand</returns>
-        private Hand ParseHand(MediapipeHandJson mpHands)
+        private Hand ParseHand(MediapipeHandJson mpHands, bool isLeft)
         {
             if (mpHands == null || !(mpHands.joints is object))
                 throw new Exception(MediapipeErrors.ERROR_EMPTY_HAND_DATA);
@@ -110,7 +136,8 @@ namespace HandTracking.Parser.Mediapipe
                     ParseFinger(MediapipeFingers.INDEX, joints),
                     ParseFinger(MediapipeFingers.MIDDLE, joints),
                     ParseFinger(MediapipeFingers.RING, joints),
-                    ParseFinger(MediapipeFingers.PINKY, joints)
+                    ParseFinger(MediapipeFingers.PINKY, joints),
+                    isLeft
                 );
             }
             else
@@ -128,12 +155,9 @@ namespace HandTracking.Parser.Mediapipe
         {
             if (mpJoint.name.Length > 0)
             {
+                Vector3 joint = this.MediapipeJointToVector3(mpJoint);
                 return new HandJoint(mpJoint.name)
-                    .Update(
-                        (float)((mpJoint.x - this.reference.x) * SCALE * -1),
-                        (float)((mpJoint.y - this.reference.y) * SCALE * -1),
-                        (float)((mpJoint.z) * SCALE)
-                    );
+                    .Update(this.UnityCoordenateAdjustment(joint - this.reference));
             }
             return null;
         }
